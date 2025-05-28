@@ -11,7 +11,7 @@ const authMiddleware = async (req, res, next) => {
         .json({ message: "Unauthorized: No token provided" });
     }
     const extractedToken = token.split(" ")[1];
-    const decoded = jwt.verify(extractedToken, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
@@ -38,6 +38,21 @@ const adminMiddleware = (req, res, next) => {
 const userMiddleware = (req, res, next) => {
   if (req.user.role !== "patient") {
     return res.status(403).json({ message: "Forbidden: Access denied" });
+  } 
+  next();
+};
+
+const doctorMiddleware = (req, res, next) => {
+  if (req.user.role !== "doctor") {
+    return res.status(403).json({ message: "Forbidden: Access denied" });
   }
   next();
+};
+
+export {
+  authMiddleware,
+  superAdminMiddleware,
+  adminMiddleware,
+  userMiddleware,
+  doctorMiddleware,
 };
