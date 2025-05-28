@@ -9,6 +9,8 @@ import {
   superAdminRouter
 } from '../routes/routes.js';
 import cors from 'cors';
+import swaggerDoc from "./swagger.js";
+import swaggerUi from "swagger-ui-express";
 
 
 const app = express();
@@ -25,6 +27,7 @@ app.use('/api/superadmin', superAdminRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/practitioner', doctorRouter);
 app.use('/api/patient', patientRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

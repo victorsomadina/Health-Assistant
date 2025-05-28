@@ -28,7 +28,7 @@ import audiotranscribe from '../app/conversation-service/controller/convocontrol
 // create SUPERADMIN routes
 const superAdminRouter = express.Router();
 superAdminRouter.post('/login', superAdminLogin);
-superAdminRouter.post('/signup/admin', authMiddleware, superAdminMiddleware, signupAdmin);
+superAdminRouter.post('/signupadmin', authMiddleware, superAdminMiddleware, signupAdmin);
 
 // create ADMIN routes
 const adminRouter = express.Router();
@@ -48,8 +48,8 @@ doctorRouter.get('/doctors/:id', authMiddleware, doctorMiddleware, getDoctorById
 const patientRouter = express.Router();
 patientRouter.post('/signup', patientSignup);
 patientRouter.post('/login', patientLogin);
-patientRouter.get('/user/:id', authMiddleware, userMiddleware, getPatientById);
-patientRouter.delete('/deleteprofile/:id', authMiddleware, userMiddleware, patientDeleteProfile);
+patientRouter.get('/getpatient/:id', authMiddleware, userMiddleware, getPatientById);
+patientRouter.delete('/deletepatient/:id', authMiddleware, userMiddleware, patientDeleteProfile);
 patientRouter.post('/audiotranscribe/:id', authMiddleware, userMiddleware, upload.single('audio'), audiotranscribe);
 
 export {
