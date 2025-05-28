@@ -33,7 +33,13 @@ export default {
         },
         green: {
           400: '#00D4AA', // Accent green
-        }
+        },
+        'brand-pri': '#026076',        // Deep teal
+        'brand-sec': '#00A99D',        // Bright aqua
+        'dark-medium': '#4B4B4B',      // Neutral gray
+        'gradient-pri-start': '#90C5D2',
+        'gradient-pri-end': '#026076',
+        'accent-green': '#00D4AA'
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
