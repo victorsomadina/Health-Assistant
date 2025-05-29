@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import brand_logo from "../../../assets/images/wehelp_logo.png";
 import login_img from "../../../assets/images/login_img.png";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -63,8 +65,18 @@ export default function LoginPage() {
     setErrors({});
 
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch('/api/auth/login', {
+      // Get API URL from environment variables (Vite)
+      const baseUrl = import.meta.env.VITE_BASE_URL;
+      const loginEndpoint = import.meta.env.VITE_LOGIN_ENDPOINT;
+
+      // Console log what you're sending to backend
+      console.log('Sending to backend:', {
+        url: `${baseUrl}${loginEndpoint}`,
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      });
+      
+      const response = await fetch(`${baseUrl}${loginEndpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,9 +89,14 @@ export default function LoginPage() {
 
       const data = await response.json();
 
+      // Console log the backend response
+      console.log('Backend Response Status:', response.status);
+      console.log('Backend Response Data:', data);
+
       if (response.ok) {
-        // Redirect to dashboard or home page
-        window.location.href = '/dashboard';
+        // Use environment variable for dashboard redirect URL (Vite)
+        const dashboardUrl = import.meta.env.VITE_DASHBOARD_URL || '/dashboard';
+        navigate(dashboardUrl);
         
       } else {
         // Handle server errors
@@ -98,7 +115,8 @@ export default function LoginPage() {
   };
 
   const handleSignupRedirect = () => {
-    window.location.href = '/signup';
+    const signupUrl = import.meta.env.VITE_SIGNUP_URL;
+    navigate(signupUrl);
   };
 
   return (
@@ -113,14 +131,16 @@ export default function LoginPage() {
 
             {/* Illustration */}
             <div className="mb-6 lg:mb-8 relative">
-              <img src={login_img} alt="Sign Up Illustration" className="w-full max-w-xs sm:max-w-sm lg:max-w-md mx-auto" />
+              <img src={login_img} alt="Login Illustration" className="w-full max-w-xs sm:max-w-sm lg:max-w-md mx-auto" />
             </div>
 
             {/* Text */}
             <p className="text-gray-700 text-sm font-semibold leading-relaxed px-4 sm:px-0">
-              Get quick, intelligent guidance for your health—
+              Continue monitoring your health, reviewing reports,
               <br />
-              anytime, anywhere. Your assistant is just a few clicks away.
+              and receiving personalized care with advanced AI
+              <br />
+              tools.
             </p>
           </div>
         </div>
@@ -228,7 +248,7 @@ export default function LoginPage() {
             Don't have an account?{' '}
             <button 
               onClick={handleSignupRedirect}
-              className="text-white font-bold underline hover:no-underline cursor-pointer"
+              className="text-white font-bold underline hover:no-underline cursor-pointer bg-transparent border-none"
             >
               SIGN UP
             </button>

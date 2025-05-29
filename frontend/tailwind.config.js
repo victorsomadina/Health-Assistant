@@ -37,8 +37,8 @@ export default {
         'brand-pri': '#026076',        // Deep teal
         'brand-sec': '#00A99D',        // Bright aqua
         'dark-medium': '#4B4B4B',      // Neutral gray
-        'gradient-pri-start': '#90C5D2',
-        'gradient-pri-end': '#026076',
+        'gradient-pri-start': '#D9D9D9',
+        'gradient-pri-end': '#E7F9FB',
         'accent-green': '#00D4AA'
       },
       fontFamily: {
