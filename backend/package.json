@@ -1,10 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server/server.js",
   "scripts": {
-    "prod": "cross-env NODE_ENV=prod nodemon server.js",
-    "dev": "cross-env NODE_ENV=dev nodemon server.js",
+    "prod": "cross-env NODE_ENV=prod nodemon src/server/server.js",
+    "dev": "cross-env NODE_ENV=dev nodemon src/server/server.js",
     "test": "cross-env NODE_ENV=test mocha --timeout 0 --require test/setup.js --exit ./test/*.test.js",
     "makemigrations": "sequelize-cli migration:generate --name migrations",
     "migrate": "sequelize-cli db:migrate",
@@ -15,17 +15,27 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "form-data": "^4.0.2",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.0",
+    "node-fetch": "^3.3.2",
+    "nodejs-whisper": "^0.2.9",
     "nodemailer": "^7.0.3",
     "nodemon": "^3.1.10",
+    "openai": "^4.103.0",
     "pg": "^8.16.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
-    "uuid": "^11.1.0"
+    "stream": "^0.0.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.1.0",
+    "whisper-node": "^1.1.1"
   }
 }

@@ -91,5 +91,5 @@ export {
   chatHistory,
   chatHistoryMessages,
   patient,
-  doctor,
+  doctor
 };

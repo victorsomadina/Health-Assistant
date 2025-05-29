@@ -24,6 +24,11 @@ const conversationRecord = db.define("admin", {
       key: "id",
     },
   },
+  conversation: {
+    type: DataTypes.TEXT('long'),
+    allowNull: false,
+    unique: true,
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

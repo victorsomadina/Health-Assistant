@@ -3,10 +3,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import "dotenv/config";
 
-const superAdminLogin = (req, res) => {
+const superAdminLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  const superAdminData = superAdmin.findOne({ where: { email } });
+  const superAdminData = await superAdmin.findOne({ where: { email } });
   if (!superAdminData) {
     return res.status(404).json({ message: "Super Admin not found" });
   }
@@ -18,12 +18,15 @@ const superAdminLogin = (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    const token = jwt.sign({ id: superAdminData.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: superAdminData.id, role: "superadmin" },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRATION,
+      }
+    );
     return res.status(200).json({ token, message: "Login successful" });
   });
 };
-
 
 export default superAdminLogin;
