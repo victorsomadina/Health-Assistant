@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import brand_logo from "../../../assets/images/wehelp_logo.png";
 import sign_up_image from "../../../assets/images/sign_up_image.png";
+import SignupSuccessModal from './SignupSuccessModal';
 
 export default function SignupPage() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -80,14 +83,17 @@ export default function SignupPage() {
     setErrors({});
 
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch('/api/auth/signup', {
+      // Get API URL from environment variables (Vite)
+      const baseUrl = import.meta.env.VITE_BASE_URL;
+      const signupEndpoint = import.meta.env.VITE_SIGNUP_ENDPOINT;
+      
+      const response = await fetch(`${baseUrl}${signupEndpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.fullName.trim(),
+          name: formData.fullName.trim(),
           email: formData.email.trim().toLowerCase(),
           password: formData.password,
         }),
@@ -121,8 +127,9 @@ export default function SignupPage() {
 
   const handleLoginRedirect = () => {
     setShowSuccessModal(false);
-    // Redirect to login page
-    window.location.href = '/login';
+    // Use environment variable for login redirect URL (Vite)
+    const loginUrl = import.meta.env.VITE_LOGIN_URL || '/login';
+    navigate(loginUrl);
   };
 
   return (
@@ -268,7 +275,7 @@ export default function SignupPage() {
             {/* Login link */}
             <p className="text-center text-[#E4E4E4] text-sm mb-8 lg:mb-12">
               Already have an account?{' '}
-              <a href="#" className="text-white font-bold underline hover:no-underline">
+              <a href={import.meta.env.VITE_LOGIN_URL || '/login'} className="text-white font-bold underline hover:no-underline">
                 LOG IN
               </a>
             </p>
@@ -302,54 +309,10 @@ export default function SignupPage() {
       
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative">
-            {/* Close button */}
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            {/* Modal content */}
-            <div className="p-8 text-center">
-              {/* Success Icon - Circular checkmark like in your design */}
-              <div className="mx-auto flex items-center justify-center w-16 h-16 mb-6">
-                <svg className="w-16 h-16 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" fill="none"/>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
-                </svg>
-              </div>
-
-              {/* Success Title */}
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Successful</h2>
-              
-              {/* Success Message */}
-              <p className="text-gray-600 mb-8">
-                Welcome Abroad. Registration Successful
-              </p>
-
-              {/* Action Buttons - Matching your design */}
-              <div className="flex gap-4 justify-center">
-                <button
-                  onClick={handleLoginRedirect}
-                  className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-8 rounded transition-colors"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={handleCloseModal}
-                  className="bg-transparent border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-8 rounded transition-colors"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SignupSuccessModal 
+          handleCloseModal={handleCloseModal}
+          handleLoginRedirect={handleLoginRedirect}
+        />
       )}
     </>
   );
