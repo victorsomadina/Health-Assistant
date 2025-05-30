@@ -1240,18 +1240,23 @@ export default {
                     example: "New York",
                     description: "Doctor's location",
                   },
-                  DOB: {
+                  gender: {
+                    type: "string",
+                    example: "Male",
+                    description: "Doctor gender",
+                  },
+                  date_of_birth: {
                     type: "string",
                     format: "date",
                     example: "1980-05-15",
                     description: "Doctor's date of birth",
                   },
-                  recordConsent: {
+                  record_consent: {
                     type: "boolean",
                     example: true,
                     description: "Consent to record patient sessions",
                   },
-                  professionalDescription: {
+                  professional_description: {
                     type: "string",
                     example:
                       "Experienced cardiologist with 10 years in practice",
@@ -1262,10 +1267,15 @@ export default {
                     example: "Cardiology",
                     description: "Medical field or specialty",
                   },
-                  yearsOfExperience: {
+                  years_of_experience: {
                     type: "integer",
                     example: 10,
                     description: "Years of professional experience",
+                  },
+                  phone: {
+                    type: "string",
+                    example: "+1234567890",
+                    description: "Doctor's contact phone number",
                   },
                 },
               },
@@ -1576,6 +1586,455 @@ export default {
                       example: {
                         code: "DATABASE_ERROR",
                         details: "Error details",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/patient/updateprofile/{id}": {
+      post: {
+        summary: "Update patient profile",
+        tags: ["User"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description: "Update a single patient's profile details by their ID.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "Patient ID to update",
+            schema: {
+              type: "string",
+              example: "1",
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  location: {
+                    type: "string",
+                    example: "Lagos",
+                  },
+                  gender: {
+                    type: "string",
+                    example: "Female",
+                  },
+                  date_of_birth: {
+                    type: "string",
+                    format: "date",
+                    example: "1990-03-15",
+                  },
+                  phone: {
+                    type: "string",
+                    example: "+2348012345678",
+                  },
+                  known_allergies: {
+                    type: "text",
+                    example: "peanuts",
+                  },
+                  chronic_conditions: {
+                    type: "text",
+                    example: "asthma",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Patient Profile Updated Successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Patient Profile Updated Successfully",
+                    },
+                    patient: {
+                      type: "object",
+                      properties: {
+                        id: { type: "integer", example: 1 },
+                        name: { type: "string", example: "Jane Doe" },
+                        gender: { type: "string", example: "Female" },
+                        email: {
+                          type: "string",
+                          format: "email",
+                          example: "jane.doe@example.com",
+                        },
+                        location: { type: "string", example: "Lagos" },
+                        age: { type: "integer", example: 34 },
+                        known_allergies: {
+                          type: "object",
+                          example: { peanuts: true },
+                        },
+                        chronic_conditions: {
+                          type: "object",
+                          example: { asthma: true },
+                        },
+                        phone: { type: "string", example: "+2348012345678" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Patient not found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Doctor not found",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error updating patient",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error updating profile",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeDatabaseError",
+                        message: "Invalid input syntax for type date",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/assistant/gethospital": {
+      get: {
+        summary: "Get all hospitals",
+        tags: ["AI Assistant"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "Fetch a list of all registered hospitals with their names and locations.",
+        responses: {
+          200: {
+            description: "Hospitals retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    hospitals: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          hospitalName: {
+                            type: "string",
+                            example: "St. Mary Hospital",
+                          },
+                          location: {
+                            type: "string",
+                            example: "Abuja",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "No hospitals found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No hospitals found",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error retrieving hospital data",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error retrieving hospital data",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeConnectionError",
+                        message: "Database connection failed",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/assistant/getdoctorbyhospital": {
+      post: {
+        summary: "Get doctors by hospital name",
+        tags: ["AI Assistant"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "Fetch all doctors associated with a specific hospital, given the hospital name.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  hospitalName: {
+                    type: "string",
+                    example: "St. Mary Hospital",
+                  },
+                },
+                required: ["hospitalName"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Doctors retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    doctors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: {
+                            type: "integer",
+                            example: 1,
+                          },
+                          name: {
+                            type: "string",
+                            example: "Dr. John Doe",
+                          },
+                          location: {
+                            type: "string",
+                            example: "Abuja",
+                          },
+                          field: {
+                            type: "string",
+                            example: "Cardiology",
+                          },
+                          professionalDescription: {
+                            type: "string",
+                            example:
+                              "Expert in cardiovascular surgery with 15 years of experience",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Hospital or doctors not found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No doctors found for this hospital",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error retrieving doctors",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error retrieving doctors",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeDatabaseError",
+                        message: "Invalid query syntax",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/assistant/chatassistant": {
+      post: {
+        summary: "Query AI Assistant",
+        tags: ["AI Assistant"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "This endpoint allows a logged-in doctor or patient to query an AI assistant using their past conversation transcripts.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  question: {
+                    type: "string",
+                    example:
+                      "What medications were discussed in our last session?",
+                  },
+                  converse: {
+                    type: "boolean",
+                    example: true,
+                  },
+                  doctorName: {
+                    type: "string",
+                    example: "Dr. John Doe",
+                  },
+                  patientName: {
+                    type: "string",
+                    example: "Jane Smith",
+                  },
+                },
+                required: ["question"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Assistant responded successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    airesponse: {
+                      type: "object",
+                      description: "The response from the assistant AI",
+                      example: {
+                        answer:
+                          "Based on the last conversation, aspirin and amlodipine were discussed.",
+                        sources: ["transcript snippet here"],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Transcript or user not found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No transcript found",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error processing request",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error fetching transcript",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "FetchError",
+                        message: "Failed to fetch data from Assistant API",
                       },
                     },
                   },

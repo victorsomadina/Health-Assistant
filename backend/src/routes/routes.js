@@ -26,6 +26,7 @@ import {
     getHospital,
     getDoctorByHospital
 } from '../app/assistant-service/agentController.js'
+import patientUpdateProfile from '../app/patient-service/controller/updateInformation.js';
 
 
 // create a router for login
@@ -53,6 +54,7 @@ const patientRouter = express.Router();
 patientRouter.post('/signup', patientSignup);
 patientRouter.get('/getpatient/:id', authMiddleware, userMiddleware, getPatientById);
 patientRouter.delete('/deletepatient/:id', authMiddleware, userMiddleware, patientDeleteProfile);
+patientRouter.post('/updateprofile/:id', authMiddleware, userMiddleware, patientUpdateProfile)
 patientRouter.post('/audiotranscribe/:id', authMiddleware, userMiddleware, upload.single('audio'), audiotranscribe);
 
 // assistant routes

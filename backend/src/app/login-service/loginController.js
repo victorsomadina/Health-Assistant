@@ -26,6 +26,12 @@ const loginController = async (req, res) => {
     // Check if the user is a doctor
     const doctorData = await doctor.findOne({ where: { email } });
     if (doctorData) {
+      // get name of hospital from admin table
+      const hospital = await admin.findOne({ where: { id: doctorData.hospitalId } });
+      if (!hospital) {
+        return res.status(404).json({ message: "Hospital not found" });
+      }
+      const hospitalName = hospital.hospitalName
       const isMatch = await bcrypt.compare(password, doctorData.password);
       if (isMatch) {
         const token = jwt.sign(
@@ -35,7 +41,7 @@ const loginController = async (req, res) => {
         );
         return res
           .status(200)
-          .json({ token, message: "Doctor login successful", doctorData, role: "doctor" });
+          .json({ token, message: "Doctor login successful", doctorData, hospital: hospitalName, role: "doctor" });
       }
     }
 
