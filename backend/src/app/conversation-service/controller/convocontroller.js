@@ -11,7 +11,6 @@ const audiotranscribe = async (req, res) => {
   }
   try {
     const transcription = await transcribeAudio(audioFile);
-    console.log("Transcription:", transcription);
     const doctorTable = await doctor.findOne({
       where: { name: doctorName },
       attributes: ["id", "name"],

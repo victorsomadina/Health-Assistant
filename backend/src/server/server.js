@@ -6,7 +6,9 @@ import {
   adminRouter,
   doctorRouter,
   patientRouter,
-  superAdminRouter
+  superAdminRouter,
+  loginRouter,
+  assistantRouter
 } from '../routes/routes.js';
 import cors from 'cors';
 import swaggerDoc from "./swagger.js";
@@ -18,15 +20,13 @@ await syncSchema();
 await populateSuperAdmin();
 
 app.use(express.json());
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
+app.use('/api', loginRouter);
 app.use('/api/superadmin', superAdminRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/practitioner', doctorRouter);
 app.use('/api/patient', patientRouter);
+app.use('/api/assistant', assistantRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 const PORT = process.env.PORT;

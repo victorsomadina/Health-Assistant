@@ -3,7 +3,7 @@ export default {
   info: {
     title: "WEHELP HealthCare API",
     version: "1.0.0",
-    description: "An API to interact with the Publica Academy database",
+    description: "An API to interact with the weHelp healthcare database",
   },
   components: {
     securitySchemes: {
@@ -15,6 +15,116 @@ export default {
     },
   },
   paths: {
+    "/api/login": {
+      post: {
+        summary: "Login for all user roles",
+        tags: ["Authentication"],
+        description:
+          "This endpoint allows Superadmin, Admin, Doctor, or Patient to log in using email and password. The role is auto-detected based on the email.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "user@example.com",
+                    description: "User's email address",
+                  },
+                  password: {
+                    type: "string",
+                    example: "password123",
+                    description: "User's login password",
+                  },
+                },
+                required: ["email", "password"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Login successful",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    token: {
+                      type: "string",
+                      description: "JWT token for authenticated access",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Admin login successful",
+                    },
+                    adminData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is an admin",
+                    },
+                    doctorData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is a doctor",
+                    },
+                    patientData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is a patient",
+                    },
+                    superAdminData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is a superadmin",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "Invalid email or password",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Invalid email or password",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Internal server error",
+                    },
+                    error: {
+                      type: "string",
+                      example: "Detailed error message",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/admin/changepassword": {
       post: {
         summary: "Change admin password",
@@ -118,129 +228,6 @@ export default {
                     error: {
                       type: "object",
                       description: "Error details",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/api/admin/login": {
-      post: {
-        summary: "Admin authentication",
-        tags: ["Admin"],
-        description:
-          "This endpoint allows an admin to authenticate and receive a JWT token for accessing protected resources.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "admin@publicaacademy.com",
-                    description: "Admin's email address",
-                  },
-                  password: {
-                    type: "string",
-                    example: "adminPassword123",
-                    description: "Admin's password",
-                  },
-                },
-                required: ["email", "password"],
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    token: {
-                      type: "string",
-                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                      description: "JWT authentication token",
-                    },
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: "Bad Request - Missing required fields",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Email and password are required",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Unauthorized - Invalid credentials",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid credentials",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Admin not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Admin not found",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Internal Server Error",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error during login",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Error details (only in development mode)",
                     },
                   },
                 },
@@ -805,124 +792,6 @@ export default {
         },
       },
     },
-    "/api/patient/login": {
-      post: {
-        summary: "Patient login authentication",
-        tags: ["User"],
-        description:
-          "This endpoint authenticates a patient using email and password credentials. Returns a JWT token upon successful authentication.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["email", "password"],
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "patient@email.com",
-                    description: "Patient's email address",
-                  },
-                  password: {
-                    type: "string",
-                    minLength: 6,
-                    example: "password123",
-                    description: "Patient's password",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    token: {
-                      type: "string",
-                      example:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlclR5cGUiOiJwYXRpZW50IiwiaWF0IjoxNjM5NTY3ODkwLCJleHAiOjE2Mzk2NTQyOTB9.xyz",
-                      description: "JWT authentication token",
-                    },
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                      description: "Success message confirming authentication",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Invalid password",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid password",
-                      description: "Error message for incorrect password",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Patient not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Patient not found",
-                      description: "Error message when patient doesn't exist",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Internal Server Error",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error during login",
-                      description: "Error message describing the failure",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Detailed error information",
-                      additionalProperties: true,
-                      example: {
-                        code: "JWT_ERROR",
-                        details: "Token generation failed",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
     "/api/patient/signup": {
       post: {
         summary: "Patient registration",
@@ -1039,126 +908,6 @@ export default {
                       example: {
                         code: "DATABASE_ERROR",
                         details: "Unable to create patient record",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/api/superadmin/login": {
-      post: {
-        summary: "Super Admin login authentication",
-        tags: ["Super Admin"],
-        description:
-          "This endpoint authenticates a super admin using email and password credentials. Returns a JWT token with superadmin role upon successful authentication.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["email", "password"],
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "superadmin@admin.com",
-                    description: "Super Admin's email address",
-                  },
-                  password: {
-                    type: "string",
-                    minLength: 6,
-                    example: "adminpassword123",
-                    description: "Super Admin's password",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    token: {
-                      type: "string",
-                      example:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSJyb2xlIjoic3VwZXJhZG1pbiIsImlhdCI6MTYzOTU2Nzg5MCwiZXhwIjoxNjM5NjU0MjkwfQ.xyz",
-                      description:
-                        "JWT authentication token with superadmin role",
-                    },
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                      description: "Success message confirming authentication",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Invalid password",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid password",
-                      description: "Error message for incorrect password",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Super Admin not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Super Admin not found",
-                      description:
-                        "Error message when super admin doesn't exist",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Internal Server Error",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error comparing passwords",
-                      description: "Error message describing the failure",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Detailed error information",
-                      additionalProperties: true,
-                      example: {
-                        code: "BCRYPT_ERROR",
-                        details: "Password comparison failed",
                       },
                     },
                   },
@@ -1446,136 +1195,6 @@ export default {
                       example: {
                         code: "DATABASE_ERROR",
                         details: "Unable to update password",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/api/practitioner/login": {
-      post: {
-        summary: "Doctor login",
-        tags: ["Doctor"],
-        description:
-          "Allows a doctor to log in by providing email and password. Returns a JWT token upon successful authentication.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["email", "password"],
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "doctor@example.com",
-                    description: "Doctor's email address",
-                  },
-                  password: {
-                    type: "string",
-                    format: "password",
-                    example: "strongpassword123",
-                    description: "Doctor's password",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                    },
-                    token: {
-                      type: "string",
-                      description: "JWT token for authentication",
-                    },
-                    doctor: {
-                      type: "object",
-                      properties: {
-                        id: {
-                          type: "integer",
-                          example: 1,
-                        },
-                        name: {
-                          type: "string",
-                          example: "Dr. John Doe",
-                        },
-                        email: {
-                          type: "string",
-                          format: "email",
-                          example: "doctor@example.com",
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Invalid password",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid password",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Doctor not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Doctor not found",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Error during login",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error during login",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Detailed error information",
-                      additionalProperties: true,
-                      example: {
-                        code: "INTERNAL_SERVER_ERROR",
-                        details: "Error details",
                       },
                     },
                   },
