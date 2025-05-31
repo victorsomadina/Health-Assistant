@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import brand_logo from "../../../assets/images/wehelp_logo.png";
-import login_img from "../../../assets/images/login_img.png";
+import brand_logo from "../../assets/images/wehelp_logo.png";
+import login_img from "../../assets/images/login_img.png";
 
 export default function LoginPage() {
   const navigate = useNavigate();
