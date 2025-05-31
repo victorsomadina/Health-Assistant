@@ -1,7 +1,8 @@
-// App.jsx - Simple and Clean
+// App.jsx - Updated with SidebarProvider
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SidebarProvider } from './context/SidebarContext'; // Import SidebarProvider
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Public pages
@@ -39,120 +40,121 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          {/* PUBLIC ROUTES */}
-          <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<UserSignup />} />
-          <Route path="/login" element={<Login />} />
-          
-          {/* PATIENT ROUTES - All separate */}
-          <Route path="/patient/dashboard" element={
-            <ProtectedRoute exactRole="patient">
-              <PatientDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/patient/chat" element={
-            <ProtectedRoute exactRole="patient">
-              <PatientChat />
-            </ProtectedRoute>
-          } />
-          <Route path="/patient/records" element={
-            <ProtectedRoute exactRole="patient">
-              <PatientRecords />
-            </ProtectedRoute>
-          } />
-          <Route path="/patient/settings" element={
-            <ProtectedRoute exactRole="patient">
-              <PatientSettings />
-            </ProtectedRoute>
-          } />
-          <Route 
-          path="/patient/doctors" element={
-            <ProtectedRoute exactRole="patient">
-              <PatientDoctors />
-            </ProtectedRoute>
-          } />
+        <SidebarProvider> {/* Wrap with SidebarProvider */}
+          <Routes>
+            {/* PUBLIC ROUTES */}
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<UserSignup />} />
+            <Route path="/login" element={<Login />} />
+            
+            {/* PATIENT ROUTES - All separate */}
+            <Route path="/patient/dashboard" element={
+              <ProtectedRoute exactRole="patient">
+                <PatientDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient/chat" element={
+              <ProtectedRoute exactRole="patient">
+                <PatientChat />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient/records" element={
+              <ProtectedRoute exactRole="patient">
+                <PatientRecords />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient/settings" element={
+              <ProtectedRoute exactRole="patient">
+                <PatientSettings />
+              </ProtectedRoute>
+            } />
+            <Route 
+            path="/patient/doctors" element={
+              <ProtectedRoute exactRole="patient">
+                <PatientDoctors />
+              </ProtectedRoute>
+            } />
 
-          {/* DOCTOR ROUTES - All separate */}
-          <Route path="/doctor/dashboard" element={
-            <ProtectedRoute exactRole="doctor">
-              <DoctorDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/doctor/chat" element={
-            <ProtectedRoute exactRole="doctor">
-              <DoctorChat />
-            </ProtectedRoute>
-          } />
-          <Route path="/doctor/patients" element={
-            <ProtectedRoute exactRole="doctor">
-              <DoctorPatients />
-            </ProtectedRoute>
-          } />
-          <Route path="/doctor/settings" element={
-            <ProtectedRoute exactRole="doctor">
-              <DoctorSettings />
-            </ProtectedRoute>
-          } />
+            {/* DOCTOR ROUTES - All separate */}
+            <Route path="/doctor/dashboard" element={
+              <ProtectedRoute exactRole="doctor">
+                <DoctorDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor/chat" element={
+              <ProtectedRoute exactRole="doctor">
+                <DoctorChat />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor/patients" element={
+              <ProtectedRoute exactRole="doctor">
+                <DoctorPatients />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor/settings" element={
+              <ProtectedRoute exactRole="doctor">
+                <DoctorSettings />
+              </ProtectedRoute>
+            } />
 
-          {/* ADMIN ROUTES - All separate */}
-          <Route path="/admin/dashboard" element={
-            <ProtectedRoute exactRole="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/doctors" element={
-            <ProtectedRoute exactRole="admin">
-              <AdminDoctors />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/reports" element={
-            <ProtectedRoute exactRole="admin">
-              <AdminReports />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/settings" element={
-            <ProtectedRoute exactRole="admin">
-              <AdminSettings />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/manage-doctors" element={
-            <ProtectedRoute exactRole="admin">
-              <ManageDoctors />
-            </ProtectedRoute>
-          } />
+            {/* ADMIN ROUTES - All separate */}
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute exactRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/doctors" element={
+              <ProtectedRoute exactRole="admin">
+                <AdminDoctors />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute exactRole="admin">
+                <AdminReports />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <ProtectedRoute exactRole="admin">
+                <AdminSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/manage-doctors" element={
+              <ProtectedRoute exactRole="admin">
+                <ManageDoctors />
+              </ProtectedRoute>
+            } />
 
-          {/* SUPER ADMIN ROUTES - All separate */}
-          <Route path="/superadmin/dashboard" element={
-            <ProtectedRoute exactRole="superadmin">
-              <SuperAdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/superadmin/hospitals" element={
-            <ProtectedRoute exactRole="superadmin">
-              <SuperAdminHospitals />
-            </ProtectedRoute>
-          } />
-          <Route path="/superadmin/analytics" element={
-            <ProtectedRoute exactRole="superadmin">
-              <SuperAdminAnalytics />
-            </ProtectedRoute>
-          } />
-          <Route path="/superadmin/settings" element={
-            <ProtectedRoute exactRole="superadmin">
-              <SuperAdminSettings />
-            </ProtectedRoute>
-          } />
+            {/* SUPER ADMIN ROUTES - All separate */}
+            <Route path="/superadmin/dashboard" element={
+              <ProtectedRoute exactRole="superadmin">
+                <SuperAdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/superadmin/hospitals" element={
+              <ProtectedRoute exactRole="superadmin">
+                <SuperAdminHospitals />
+              </ProtectedRoute>
+            } />
+            <Route path="/superadmin/analytics" element={
+              <ProtectedRoute exactRole="superadmin">
+                <SuperAdminAnalytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/superadmin/settings" element={
+              <ProtectedRoute exactRole="superadmin">
+                <SuperAdminSettings />
+              </ProtectedRoute>
+            } />
 
-          {/* DEFAULT REDIRECTS */}
-          <Route path="/dashboard" element={<DashboardRedirect />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            {/* DEFAULT REDIRECTS */}
+            <Route path="/dashboard" element={<DashboardRedirect />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </SidebarProvider> {/* Close SidebarProvider */}
       </AuthProvider>
     </Router>
   );
 }
-
 
 // Simple redirect based on role
 const DashboardRedirect = () => {

@@ -1,10 +1,12 @@
 // components/layout/Header.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { ChevronDown, User, Settings, LogOut } from 'lucide-react';
+import { useSidebar } from '../../context/SidebarContext';
+import { ChevronDown, User, Settings, LogOut, Menu, ChevronsLeft } from 'lucide-react';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { isOpen, toggleSidebar } = useSidebar();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const getRoleDisplayName = (role) => {
@@ -40,13 +42,27 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b fixed top-0 left-64 right-0 z-10">
-      <div className="px-6 lg:px-8">
+    <header className={`bg-white shadow-sm border-b fixed top-0 right-0 z-30 transition-all duration-300 ${
+      isOpen ? 'left-64' : 'left-0'
+    }`}>
+      <div className="px-4 lg:px-6">
         <div className="flex justify-between items-center py-4">
-          {/* Left Side - Greeting and Date */}
-          <div className="flex flex-col">
-            <span className="text-gray-700 text-lg font-medium">{getGreeting()}</span>
-            <span className="text-gray-500 text-sm">{getCurrentDate()}</span>
+          {/* Left Side - Hamburger Menu + Greeting and Date */}
+          <div className="flex items-center space-x-4">
+            {/* Hamburger Menu Button */}
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+              aria-label={isOpen ? 'Close sidebar' : 'Open sidebar'}
+            >
+              {isOpen ? <ChevronsLeft size={20} /> : <Menu size={20} />}
+            </button>
+            
+            {/* Greeting and Date - Hidden on small screens */}
+            <div className="hidden sm:flex flex-col">
+              <span className="text-gray-700 text-lg font-medium">{getGreeting()}</span>
+              <span className="text-gray-500 text-sm">{getCurrentDate()}</span>
+            </div>
           </div>
 
           {/* Right Side - User Info and Dropdown */}
