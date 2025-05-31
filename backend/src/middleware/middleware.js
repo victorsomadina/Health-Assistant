@@ -11,7 +11,7 @@ const authMiddleware = async (req, res, next) => {
         .json({ message: "Unauthorized: No token provided" });
     }
     const extractedToken = token.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(extractedToken, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {

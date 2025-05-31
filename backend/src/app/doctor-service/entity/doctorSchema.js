@@ -33,6 +33,10 @@ const doctor = db.define("doctor", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  gender: {
+    type: DataTypes.STRING,
+    allowNull:true
+  },
   DOB: {
     type: DataTypes.DATE,
     allowNull: true,
@@ -53,6 +57,10 @@ const doctor = db.define("doctor", {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }, 
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

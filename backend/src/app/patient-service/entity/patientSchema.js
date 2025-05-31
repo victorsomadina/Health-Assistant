@@ -20,6 +20,30 @@ const patient = db.define("doctor", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  location: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  gender: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  knownAllergies: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true
+  },
+  chronicConditions: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true
+  },
+  DOB: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

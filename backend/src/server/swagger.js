@@ -3,7 +3,7 @@ export default {
   info: {
     title: "WEHELP HealthCare API",
     version: "1.0.0",
-    description: "An API to interact with the Publica Academy database",
+    description: "An API to interact with the weHelp healthcare database",
   },
   components: {
     securitySchemes: {
@@ -15,6 +15,116 @@ export default {
     },
   },
   paths: {
+    "/api/login": {
+      post: {
+        summary: "Login for all user roles",
+        tags: ["Authentication"],
+        description:
+          "This endpoint allows Superadmin, Admin, Doctor, or Patient to log in using email and password. The role is auto-detected based on the email.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "user@example.com",
+                    description: "User's email address",
+                  },
+                  password: {
+                    type: "string",
+                    example: "password123",
+                    description: "User's login password",
+                  },
+                },
+                required: ["email", "password"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Login successful",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    token: {
+                      type: "string",
+                      description: "JWT token for authenticated access",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Admin login successful",
+                    },
+                    adminData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is an admin",
+                    },
+                    doctorData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is a doctor",
+                    },
+                    patientData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is a patient",
+                    },
+                    superAdminData: {
+                      type: "object",
+                      nullable: true,
+                      description: "Returned if logged-in user is a superadmin",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "Invalid email or password",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Invalid email or password",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Internal server error",
+                    },
+                    error: {
+                      type: "string",
+                      example: "Detailed error message",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/admin/changepassword": {
       post: {
         summary: "Change admin password",
@@ -118,129 +228,6 @@ export default {
                     error: {
                       type: "object",
                       description: "Error details",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/api/admin/login": {
-      post: {
-        summary: "Admin authentication",
-        tags: ["Admin"],
-        description:
-          "This endpoint allows an admin to authenticate and receive a JWT token for accessing protected resources.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "admin@publicaacademy.com",
-                    description: "Admin's email address",
-                  },
-                  password: {
-                    type: "string",
-                    example: "adminPassword123",
-                    description: "Admin's password",
-                  },
-                },
-                required: ["email", "password"],
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    token: {
-                      type: "string",
-                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                      description: "JWT authentication token",
-                    },
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: "Bad Request - Missing required fields",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Email and password are required",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Unauthorized - Invalid credentials",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid credentials",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Admin not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Admin not found",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Internal Server Error",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error during login",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Error details (only in development mode)",
                     },
                   },
                 },
@@ -805,124 +792,6 @@ export default {
         },
       },
     },
-    "/api/patient/login": {
-      post: {
-        summary: "Patient login authentication",
-        tags: ["User"],
-        description:
-          "This endpoint authenticates a patient using email and password credentials. Returns a JWT token upon successful authentication.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["email", "password"],
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "patient@email.com",
-                    description: "Patient's email address",
-                  },
-                  password: {
-                    type: "string",
-                    minLength: 6,
-                    example: "password123",
-                    description: "Patient's password",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    token: {
-                      type: "string",
-                      example:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlclR5cGUiOiJwYXRpZW50IiwiaWF0IjoxNjM5NTY3ODkwLCJleHAiOjE2Mzk2NTQyOTB9.xyz",
-                      description: "JWT authentication token",
-                    },
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                      description: "Success message confirming authentication",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Invalid password",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid password",
-                      description: "Error message for incorrect password",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Patient not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Patient not found",
-                      description: "Error message when patient doesn't exist",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Internal Server Error",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error during login",
-                      description: "Error message describing the failure",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Detailed error information",
-                      additionalProperties: true,
-                      example: {
-                        code: "JWT_ERROR",
-                        details: "Token generation failed",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
     "/api/patient/signup": {
       post: {
         summary: "Patient registration",
@@ -1039,126 +908,6 @@ export default {
                       example: {
                         code: "DATABASE_ERROR",
                         details: "Unable to create patient record",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/api/superadmin/login": {
-      post: {
-        summary: "Super Admin login authentication",
-        tags: ["Super Admin"],
-        description:
-          "This endpoint authenticates a super admin using email and password credentials. Returns a JWT token with superadmin role upon successful authentication.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["email", "password"],
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "superadmin@admin.com",
-                    description: "Super Admin's email address",
-                  },
-                  password: {
-                    type: "string",
-                    minLength: 6,
-                    example: "adminpassword123",
-                    description: "Super Admin's password",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    token: {
-                      type: "string",
-                      example:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSJyb2xlIjoic3VwZXJhZG1pbiIsImlhdCI6MTYzOTU2Nzg5MCwiZXhwIjoxNjM5NjU0MjkwfQ.xyz",
-                      description:
-                        "JWT authentication token with superadmin role",
-                    },
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                      description: "Success message confirming authentication",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Invalid password",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid password",
-                      description: "Error message for incorrect password",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Super Admin not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Super Admin not found",
-                      description:
-                        "Error message when super admin doesn't exist",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Internal Server Error",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error comparing passwords",
-                      description: "Error message describing the failure",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Detailed error information",
-                      additionalProperties: true,
-                      example: {
-                        code: "BCRYPT_ERROR",
-                        details: "Password comparison failed",
                       },
                     },
                   },
@@ -1456,136 +1205,6 @@ export default {
         },
       },
     },
-    "/api/practitioner/login": {
-      post: {
-        summary: "Doctor login",
-        tags: ["Doctor"],
-        description:
-          "Allows a doctor to log in by providing email and password. Returns a JWT token upon successful authentication.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["email", "password"],
-                properties: {
-                  email: {
-                    type: "string",
-                    format: "email",
-                    example: "doctor@example.com",
-                    description: "Doctor's email address",
-                  },
-                  password: {
-                    type: "string",
-                    format: "password",
-                    example: "strongpassword123",
-                    description: "Doctor's password",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Login successful",
-                    },
-                    token: {
-                      type: "string",
-                      description: "JWT token for authentication",
-                    },
-                    doctor: {
-                      type: "object",
-                      properties: {
-                        id: {
-                          type: "integer",
-                          example: 1,
-                        },
-                        name: {
-                          type: "string",
-                          example: "Dr. John Doe",
-                        },
-                        email: {
-                          type: "string",
-                          format: "email",
-                          example: "doctor@example.com",
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: {
-            description: "Invalid password",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Invalid password",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Doctor not found",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Doctor not found",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: "Error during login",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Error during login",
-                    },
-                    error: {
-                      type: "object",
-                      description: "Detailed error information",
-                      additionalProperties: true,
-                      example: {
-                        code: "INTERNAL_SERVER_ERROR",
-                        details: "Error details",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
     "/api/practitioner/updateprofile/{id}": {
       post: {
         summary: "Update doctor profile",
@@ -1621,18 +1240,23 @@ export default {
                     example: "New York",
                     description: "Doctor's location",
                   },
-                  DOB: {
+                  gender: {
+                    type: "string",
+                    example: "Male",
+                    description: "Doctor gender",
+                  },
+                  date_of_birth: {
                     type: "string",
                     format: "date",
                     example: "1980-05-15",
                     description: "Doctor's date of birth",
                   },
-                  recordConsent: {
+                  record_consent: {
                     type: "boolean",
                     example: true,
                     description: "Consent to record patient sessions",
                   },
-                  professionalDescription: {
+                  professional_description: {
                     type: "string",
                     example:
                       "Experienced cardiologist with 10 years in practice",
@@ -1643,10 +1267,15 @@ export default {
                     example: "Cardiology",
                     description: "Medical field or specialty",
                   },
-                  yearsOfExperience: {
+                  years_of_experience: {
                     type: "integer",
                     example: 10,
                     description: "Years of professional experience",
+                  },
+                  phone: {
+                    type: "string",
+                    example: "+1234567890",
+                    description: "Doctor's contact phone number",
                   },
                 },
               },
@@ -1957,6 +1586,455 @@ export default {
                       example: {
                         code: "DATABASE_ERROR",
                         details: "Error details",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/patient/updateprofile/{id}": {
+      post: {
+        summary: "Update patient profile",
+        tags: ["User"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description: "Update a single patient's profile details by their ID.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "Patient ID to update",
+            schema: {
+              type: "string",
+              example: "1",
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  location: {
+                    type: "string",
+                    example: "Lagos",
+                  },
+                  gender: {
+                    type: "string",
+                    example: "Female",
+                  },
+                  date_of_birth: {
+                    type: "string",
+                    format: "date",
+                    example: "1990-03-15",
+                  },
+                  phone: {
+                    type: "string",
+                    example: "+2348012345678",
+                  },
+                  known_allergies: {
+                    type: "text",
+                    example: "peanuts",
+                  },
+                  chronic_conditions: {
+                    type: "text",
+                    example: "asthma",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Patient Profile Updated Successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Patient Profile Updated Successfully",
+                    },
+                    patient: {
+                      type: "object",
+                      properties: {
+                        id: { type: "integer", example: 1 },
+                        name: { type: "string", example: "Jane Doe" },
+                        gender: { type: "string", example: "Female" },
+                        email: {
+                          type: "string",
+                          format: "email",
+                          example: "jane.doe@example.com",
+                        },
+                        location: { type: "string", example: "Lagos" },
+                        age: { type: "integer", example: 34 },
+                        known_allergies: {
+                          type: "object",
+                          example: { peanuts: true },
+                        },
+                        chronic_conditions: {
+                          type: "object",
+                          example: { asthma: true },
+                        },
+                        phone: { type: "string", example: "+2348012345678" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Patient not found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Doctor not found",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error updating patient",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error updating profile",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeDatabaseError",
+                        message: "Invalid input syntax for type date",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/assistant/gethospital": {
+      get: {
+        summary: "Get all hospitals",
+        tags: ["AI Assistant"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "Fetch a list of all registered hospitals with their names and locations.",
+        responses: {
+          200: {
+            description: "Hospitals retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    hospitals: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          hospitalName: {
+                            type: "string",
+                            example: "St. Mary Hospital",
+                          },
+                          location: {
+                            type: "string",
+                            example: "Abuja",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "No hospitals found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No hospitals found",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error retrieving hospital data",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error retrieving hospital data",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeConnectionError",
+                        message: "Database connection failed",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/assistant/getdoctorbyhospital": {
+      post: {
+        summary: "Get doctors by hospital name",
+        tags: ["AI Assistant"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "Fetch all doctors associated with a specific hospital, given the hospital name.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  hospitalName: {
+                    type: "string",
+                    example: "St. Mary Hospital",
+                  },
+                },
+                required: ["hospitalName"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Doctors retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    doctors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: {
+                            type: "integer",
+                            example: 1,
+                          },
+                          name: {
+                            type: "string",
+                            example: "Dr. John Doe",
+                          },
+                          location: {
+                            type: "string",
+                            example: "Abuja",
+                          },
+                          field: {
+                            type: "string",
+                            example: "Cardiology",
+                          },
+                          professionalDescription: {
+                            type: "string",
+                            example:
+                              "Expert in cardiovascular surgery with 15 years of experience",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Hospital or doctors not found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No doctors found for this hospital",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error retrieving doctors",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error retrieving doctors",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeDatabaseError",
+                        message: "Invalid query syntax",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/assistant/chatassistant": {
+      post: {
+        summary: "Query AI Assistant",
+        tags: ["AI Assistant"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "This endpoint allows a logged-in doctor or patient to query an AI assistant using their past conversation transcripts.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  question: {
+                    type: "string",
+                    example:
+                      "What medications were discussed in our last session?",
+                  },
+                  converse: {
+                    type: "boolean",
+                    example: true,
+                  },
+                  doctorName: {
+                    type: "string",
+                    example: "Dr. John Doe",
+                  },
+                  patientName: {
+                    type: "string",
+                    example: "Jane Smith",
+                  },
+                },
+                required: ["question"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Assistant responded successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    airesponse: {
+                      type: "object",
+                      description: "The response from the assistant AI",
+                      example: {
+                        answer:
+                          "Based on the last conversation, aspirin and amlodipine were discussed.",
+                        sources: ["transcript snippet here"],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Transcript or user not found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No transcript found",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error processing request",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error fetching transcript",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "FetchError",
+                        message: "Failed to fetch data from Assistant API",
                       },
                     },
                   },
