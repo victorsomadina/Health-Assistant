@@ -24,6 +24,3 @@ const db = new Sequelize(database, user, password, {
 })();
 
 export default db;
-
-// postgresql://wehelp_user:iVvHieAEjo0uJtbgXMp9c3VAlvEwdtYz@dpg-d0tusvadbo4c73a6agt0-a.oregon-postgres.render.com/wehelp
-
