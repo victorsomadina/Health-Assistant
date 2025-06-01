@@ -36,6 +36,7 @@ export default {
         },
         'brand-pri': '#026076',        // Deep teal
         'brand-sec': '#00A99D',        // Bright aqua
+        'pri-hover': '#026c84',
         'dark-medium': '#4B4B4B',      // Neutral gray
         'gradient-pri-start': '#D9D9D9',
         'gradient-pri-end': '#E7F9FB',

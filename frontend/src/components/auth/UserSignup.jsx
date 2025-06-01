@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import brand_logo from "../../../assets/images/wehelp_logo.png";
-import sign_up_image from "../../../assets/images/sign_up_image.png";
+import brand_logo from "../../assets/images/wehelp_logo.png";
+import sign_up_image from "../../assets/images/sign_up_image.png";
 import SignupSuccessModal from './SignupSuccessModal';
 
 export default function SignupPage() {

@@ -1,5 +1,5 @@
 import React from 'react';
-import check from "../../../assets/icons/check.png";
+import check from "../../assets/icons/check.png";
 import { X } from 'lucide-react';
 
 const SignupSuccessModal = ({ handleCloseModal, handleLoginRedirect }) => {
