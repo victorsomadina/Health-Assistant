@@ -7,7 +7,6 @@ const signupDoctor = async (req, res) => {
   try {
     const id = req.params.id;
     const { name, email, password } = req.body;
-    console.log("Received data:", { id, name, email, password });
 
     // Input validation
     if (!name || !email || !password || !id) {

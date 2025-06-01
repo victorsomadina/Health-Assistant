@@ -27,6 +27,7 @@ import {
     getDoctorByHospital
 } from '../app/assistant-service/agentController.js'
 import patientUpdateProfile from '../app/patient-service/controller/updateInformation.js';
+import viewPatients from '../app/doctor-service/controller/viewPatients.js';
 
 
 // create a router for login
@@ -46,8 +47,9 @@ adminRouter.post('/signupdoctor/:id', authMiddleware, adminMiddleware, signupDoc
 const doctorRouter = express.Router();
 doctorRouter.post('/changepassword/:id', authMiddleware, doctorMiddleware, doctorChangePassword);
 doctorRouter.post('/updateprofile/:id', authMiddleware, doctorMiddleware, doctorUpdateProfile);
-doctorRouter.get('/doctors', authMiddleware, doctorMiddleware, getAllDoctors);
 doctorRouter.get('/doctors/:id', authMiddleware, doctorMiddleware, getDoctorById);
+doctorRouter.get('/viewpatients', authMiddleware, doctorMiddleware, viewPatients);
+
 
 // create PATIENT routes
 const patientRouter = express.Router();
@@ -56,6 +58,7 @@ patientRouter.get('/getpatient/:id', authMiddleware, userMiddleware, getPatientB
 patientRouter.delete('/deletepatient/:id', authMiddleware, userMiddleware, patientDeleteProfile);
 patientRouter.post('/updateprofile/:id', authMiddleware, userMiddleware, patientUpdateProfile)
 patientRouter.post('/audiotranscribe/:id', authMiddleware, userMiddleware, upload.single('audio'), audiotranscribe);
+patientRouter.get('/getdoctors', authMiddleware, userMiddleware, getAllDoctors);
 
 // assistant routes
 const assistantRouter = express.Router();
