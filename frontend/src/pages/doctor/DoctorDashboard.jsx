@@ -50,6 +50,7 @@ const DoctorDashboard = () => {
   // Get the most up-to-date user data
   const currentUser = user || {};
 
+
   return (
     <DoctorLayout>
       {/* Page Title */}

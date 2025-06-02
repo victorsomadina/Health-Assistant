@@ -100,8 +100,7 @@ export default function Login() {
   };
 
   const handleSignupRedirect = () => {
-    const signupUrl = import.meta.env.VITE_SIGNUP_URL || '/signup';
-    navigate(signupUrl);
+    navigate('/signup');
   };
 
   return (

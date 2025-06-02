@@ -10,7 +10,6 @@ const doctor = db.define("doctor", {
   hospitalId: {
     type: DataTypes.UUID,
     allowNull: false,
-    unique: true,
     references: {
         model: 'admin',
         key: 'id',

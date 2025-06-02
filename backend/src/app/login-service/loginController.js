@@ -19,45 +19,87 @@ const loginController = async (req, res) => {
         );
         return res
           .status(200)
-          .json({ token, message: "Admin login successful", adminData, role: "admin" });
+          .json({
+            token,
+            message: "Admin login successful",
+            adminData,
+            role: "admin",
+          });
       }
     }
 
     // Check if the user is a doctor
-    const doctorData = await doctor.findOne({ where: { email } });
-    if (doctorData) {
-      // get name of hospital from admin table
-      const hospital = await admin.findOne({ where: { id: doctorData.hospitalId } });
+    const doctorTable = await doctor.findOne({ where: { email } });
+    if (doctorTable) {
+      const hospital = await admin.findOne({
+        where: { id: doctorTable.hospitalId },
+      });
       if (!hospital) {
         return res.status(404).json({ message: "Hospital not found" });
       }
-      const hospitalName = hospital.hospitalName
-      const isMatch = await bcrypt.compare(password, doctorData.password);
+      const hospitalName = hospital.hospitalName;
+      const isMatch = await bcrypt.compare(password, doctorTable.password);
       if (isMatch) {
         const token = jwt.sign(
-          { id: doctorData.id, role: "doctor" },
+          { id: doctorTable.id, role: "doctor" },
           process.env.JWT_SECRET,
           { expiresIn: process.env.JWT_EXPIRATION }
         );
+        const doctorData = {
+          id: doctorTable.id,
+          name: doctorTable.name,
+          email: doctorTable.email,
+          age:
+            new Date().getFullYear() - new Date(doctorTable.DOB).getFullYear(),
+          gender: doctorTable.gender,
+          DOB: doctorTable.DOB,
+          phone: doctorTable.phone,
+          location: doctorTable.location,
+          recordConsent: doctorTable.recordConsent,
+          professionalDescription: doctorTable.professionalDescription,
+          field: doctorTable.field,
+          yearsOfExperience: doctorTable.yearsOfExperience,
+          hospitalName: hospitalName,
+          createdAt: doctorTable.createdAt,
+          role: "doctor",
+
+        };
         return res
           .status(200)
-          .json({ token, message: "Doctor login successful", doctorData, hospital: hospitalName, role: "doctor" });
+          .json({ token, message: "Doctor login successful", doctorData });
       }
     }
 
     // Check if the user is a patient
-    const patientData = await patient.findOne({ where: { email } });
-    if (patientData) {
-      const isMatch = await bcrypt.compare(password, patientData.password);
+    const patientTable = await patient.findOne({ where: { email } });
+    if (patientTable) {
+      const isMatch = await bcrypt.compare(password, patientTable.password);
       if (isMatch) {
         const token = jwt.sign(
-          { id: patientData.id, role: "patient" },
+          { id: patientTable.id, role: "patient" },
           process.env.JWT_SECRET,
           { expiresIn: process.env.JWT_EXPIRATION }
         );
+        const patientData = {
+          id: patientTable.id,
+          name: patientTable.name,
+          email: patientTable.email,
+          age:
+            new Date().getFullYear() - new Date(patientTable.DOB).getFullYear(),
+          DOB: patientTable.DOB,
+          knownAllergies: patientTable.knownAllergies,
+          chronicConditions: patientTable.chronicConditions,
+          createdAt: patientTable.createdAt,
+          phone: patientTable.phone,
+          role: "patient",
+        };
         return res
           .status(200)
-          .json({ token, message: "Patient login successful", patientData, role: "patient" });
+          .json({
+            token,
+            message: "Patient login successful",
+            patientData,
+          });
       }
     }
 
@@ -73,7 +115,12 @@ const loginController = async (req, res) => {
         );
         return res
           .status(200)
-          .json({ token, message: "Super Admin login successful", superAdminData, role: "superadmin" });
+          .json({
+            token,
+            message: "Super Admin login successful",
+            superAdminData,
+            role: "superadmin",
+          });
       }
     }
 

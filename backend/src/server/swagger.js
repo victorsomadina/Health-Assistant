@@ -1390,10 +1390,10 @@ export default {
         },
       },
     },
-    "/api/practitioner/doctors": {
+    "/api/patient/doctors": {
       get: {
         summary: "Get all doctors",
-        tags: ["Doctor"],
+        tags: ["User"],
         security: [
           {
             bearerAuth: [],
@@ -1744,11 +1744,6 @@ export default {
       get: {
         summary: "Get all hospitals",
         tags: ["AI Assistant"],
-        security: [
-          {
-            bearerAuth: [],
-          },
-        ],
         description:
           "Fetch a list of all registered hospitals with their names and locations.",
         responses: {
@@ -1828,11 +1823,6 @@ export default {
       post: {
         summary: "Get doctors by hospital name",
         tags: ["AI Assistant"],
-        security: [
-          {
-            bearerAuth: [],
-          },
-        ],
         description:
           "Fetch all doctors associated with a specific hospital, given the hospital name.",
         requestBody: {
@@ -2035,6 +2025,129 @@ export default {
                       example: {
                         name: "FetchError",
                         message: "Failed to fetch data from Assistant API",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/practitioner/patients": {
+      get: {
+        summary: "Retrieve Patients for Logged-in Doctor",
+        tags: ["Doctor"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "This endpoint allows a logged-in doctor to retrieve a list of patients they have interacted with via recorded conversations.",
+        responses: {
+          200: {
+            description: "Patients retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Patients retrieved successfully",
+                    },
+                    patients: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          doctorId: {
+                            type: "integer",
+                            example: 42,
+                          },
+                          patientId: {
+                            type: "integer",
+                            example: 17,
+                          },
+                          patient: {
+                            type: "object",
+                            properties: {
+                              id: {
+                                type: "integer",
+                                example: 17,
+                              },
+                              name: {
+                                type: "string",
+                                example: "Jane Smith",
+                              },
+                              email: {
+                                type: "string",
+                                example: "jane.smith@example.com",
+                              },
+                              location: {
+                                type: "string",
+                                example: "Lagos, Nigeria",
+                              },
+                              DOB: {
+                                type: "string",
+                                format: "date",
+                                example: "1990-05-14",
+                              },
+                              knownAllergies: {
+                                type: "string",
+                                example: "Penicillin",
+                              },
+                              chronicConditions: {
+                                type: "string",
+                                example: "Asthma",
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "No patients found",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No patients found",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error retrieving patients",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error retrieving patients",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error information",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeDatabaseError",
+                        message:
+                          "Invalid table reference or DB connection issue",
                       },
                     },
                   },
