@@ -5,5 +5,13 @@
     "database": "wehelp",
     "host": "localhost",
     "dialect": "postgres"
+  },
+  "production": {
+    "username": "wehelp_user",
+    "password": "iVvHieAEjo0uJtbgXMp9c3VAlvEwdtYz",
+    "database": "wehelp",
+    "host": "dpg-d0tusvadbo4c73a6agt0-a",
+    "dialect": "postgres"
   }
 }
+
