@@ -1,0 +1,5 @@
+Flask
+pydantic
+python-dotenv 
+FLASK-CORS
+langchain
