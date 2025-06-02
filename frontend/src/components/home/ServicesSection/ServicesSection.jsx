@@ -1,10 +1,11 @@
 import React from 'react';
 import ServiceCard from '../../ui/ServiceCard/ServiceCard';
-import VoiceIcon from '/src/assets/icons/voice-icon.svg';
 import Debby from '/src/assets/images/debby.svg';
 import Victor from '/src/assets/images/victor.svg';
 import Yusuf from '/src/assets/images/yusuf.svg';
-import chat_bubble from '/src/assets/icons/chat-bubble.svg';
+import MaskDoctor from '/src/assets/images/mask-doctor.svg';
+import chatBubbleIcon from '/src/assets/icons/chat-bubble.svg';
+import voiceIcon from '/src/assets/icons/voice-icon.svg';
 
 const ServicesSection = () => {
   const services = [
@@ -14,7 +15,7 @@ const ServicesSection = () => {
       title: "Chat with our Virtual Assistant",
       subtitle: "Text and Voice",
       buttonText: "Text and Voice",
-      icon: chat_bubble,
+      icon: chatBubbleIcon,
     },
     {
       id: 2,
@@ -22,11 +23,11 @@ const ServicesSection = () => {
       title: "Record your Consultation",
       subtitle: "",
       buttonText: "",
-      icon: <VoiceIcon className="w-7 h-7 text-[#026076]" />,
+      icon: voiceIcon,
       avatars: [
-        '/src/assets/images/debby.svg',
-        '/src/assets/images/victor.svg',
-        '/src/assets/images/yusuf.svg',
+        Debby,
+        Victor,
+        Yusuf,
       ],
     },
     {
@@ -37,33 +38,35 @@ const ServicesSection = () => {
       buttonText: "Connect",
       icon: "connect",
     },
-    {
-      id: 4,
-      type: 'doctor-image',
-      image: '/src/assets/images/mask-doctor.svg',
-    },
   ];
 
   return (
-    <section className="py-16 lg:py-24 bg-transparent">
+    <section className="py-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-0 lg:gap-0 items-stretch justify-center">
-          {/* Card 1 */}
-          <div className="flex-1 -mt-6 lg:-mt-8 z-20">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch justify-center">
+          {/* Card 1 - Chat Assistant */}
+          <div className="flex-1 lg:max-w-sm">
             <ServiceCard service={services[0]} step="step1" />
           </div>
-          {/* Card 2 (center, raised) */}
-          <div className="flex-1 z-10">
-            <ServiceCard service={services[1]} step="step2" emphasized />
+          
+          {/* Card 2 - Recording (Center, Emphasized) */}
+          <div className="flex-1 lg:max-w-sm">
+            <ServiceCard service={services[1]} step="step2"/>
           </div>
-          {/* Card 3 */}
-          <div className="flex-1 z-10">
+          
+          {/* Card 3 - Connect with Doctors */}
+          <div className="flex-1 lg:max-w-sm">
             <ServiceCard service={services[2]} step="step3" />
           </div>
-          {/* Card 4: Doctor Image */}
-          <div className="flex-1 z-0 flex items-end justify-center">
-            <div className="w-full h-full flex items-center justify-center">
-              <img src="/src/assets/images/mask-doctor.svg" alt="Professional Doctor" className="rounded-2xl object-cover w-full h-full max-h-72" />
+          
+          {/* Card 4 - Doctor Image */}
+          <div className="flex-1 lg:max-w-sm lg:-mt-4">
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden h-full min-h-[300px] lg:min-h-[350px]">
+              <img 
+                src={MaskDoctor} 
+                alt="Professional Doctor" 
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>

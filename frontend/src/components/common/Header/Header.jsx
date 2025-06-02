@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logo from '../../../assets/images/wehelp_logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -15,7 +18,7 @@ const Header = () => {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <img 
-                src="/src/assets/images/wehelp_logo.svg" 
+                src={logo}
                 alt="WeHelp Logo" 
                 className="h-8 lg:h-10 w-auto"
               />
@@ -66,10 +69,10 @@ const Header = () => {
 
           {/* Auth Buttons - Desktop */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="btn-secondary text-sm px-5 py-2">
+            <button className="btn-secondary text-sm px-5 py-2" onClick={() => navigate('/login')}>
               Login
             </button>
-            <button className="btn-primary text-sm px-5 py-2">
+            <button className="btn-primary text-sm px-5 py-2" onClick={() => navigate('/signup')}>
               Sign up
             </button>
           </div>
@@ -121,10 +124,10 @@ const Header = () => {
               </a>
             </div>
             <div className="px-5 py-4 border-t border-teal-100 space-y-3">
-              <button className="btn-secondary w-full justify-center text-sm">
+              <button className="btn-secondary w-full justify-center text-sm" onClick={() => navigate('/login')}>
                 Login
               </button>
-              <button className="btn-primary w-full justify-center text-sm">
+              <button className="btn-primary w-full justify-center text-sm" onClick={() => navigate('/signup')}>
                 Sign up
               </button>
             </div>
