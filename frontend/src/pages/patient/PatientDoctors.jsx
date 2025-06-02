@@ -1,7 +1,7 @@
 // pages/patient/PatientDoctors.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Search, User, Filter, X } from 'lucide-react';
+import { Search, User, Filter, X, AlertCircle } from 'lucide-react';
 import PatientLayout from '../../components/layout/PatientLayout';
 import { doctorService } from '../../services/doctorService';
 
@@ -13,25 +13,32 @@ const PatientDoctors = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [doctorsPerPage] = useState(10);
 
   // Fetch doctors and specialties on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [doctorsData, specialtiesData] = await Promise.all([
-          doctorService.getAllDoctors(),
-          doctorService.getSpecialties()
-        ]);
+        setError(null);
         
+        // Fetch doctors from single endpoint
+        const doctorsData = await doctorService.getAllDoctors();
         setDoctors(doctorsData);
         setFilteredDoctors(doctorsData);
-        setSpecialties(specialtiesData);
+        
+        // Extract specialties from doctors data
+        const uniqueSpecialties = [...new Set(doctorsData.map(doctor => doctor.field))].filter(Boolean);
+        setSpecialties(uniqueSpecialties.sort());
+        
       } catch (error) {
         console.error('Failed to fetch data:', error);
-        // Handle error (show toast, etc.)
+        setError(error.message || 'Failed to load data. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -40,23 +47,42 @@ const PatientDoctors = () => {
     fetchData();
   }, []);
 
-  // Filter doctors based on search and specialty
+  // Filter doctors based on search and specialty (client-side filtering)
   useEffect(() => {
-    const filterDoctors = async () => {
-      try {
-        if (searchTerm || selectedSpecialty) {
-          const filtered = await doctorService.searchDoctors(searchTerm, selectedSpecialty);
-          setFilteredDoctors(filtered);
-        } else {
-          setFilteredDoctors(doctors);
-        }
-      } catch (error) {
-        console.error('Failed to filter doctors:', error);
-        setFilteredDoctors(doctors);
+    const filterDoctors = () => {
+      let filtered = doctors;
+
+      // Filter by search term
+      if (searchTerm && searchTerm.trim()) {
+        const searchLower = searchTerm.toLowerCase().trim();
+        filtered = filtered.filter(doctor =>
+          (doctor.name && doctor.name.toLowerCase().includes(searchLower)) ||
+          (doctor.field && doctor.field.toLowerCase().includes(searchLower)) ||
+          (doctor.hospital && doctor.hospital.toLowerCase().includes(searchLower)) ||
+          (doctor.location && doctor.location.toLowerCase().includes(searchLower)) ||
+          (doctor.professionalDescription && doctor.professionalDescription.toLowerCase().includes(searchLower))
+        );
       }
+
+      // Filter by specialty
+      if (selectedSpecialty) {
+        filtered = filtered.filter(doctor => doctor.field === selectedSpecialty);
+      }
+
+      setFilteredDoctors(filtered);
+      setCurrentPage(1); // Reset to first page when filters change
     };
 
-    filterDoctors();
+    // Set searching state
+    setIsSearching(true);
+    
+    // Debounce the filtering for better performance
+    const debounceTimer = setTimeout(() => {
+      filterDoctors();
+      setIsSearching(false);
+    }, 300);
+    
+    return () => clearTimeout(debounceTimer);
   }, [searchTerm, selectedSpecialty, doctors]);
 
   const handleViewDoctor = (doctor) => {
@@ -65,35 +91,121 @@ const PatientDoctors = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return 'N/A';
+    }
   };
 
   const calculateAge = (dob) => {
-    const today = new Date();
-    const birthDate = new Date(dob);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
+    if (!dob) return 'N/A';
+    try {
+      const today = new Date();
+      const birthDate = new Date(dob);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    } catch (error) {
+      return 'N/A';
     }
-    return age;
   };
 
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedSpecialty('');
+    setCurrentPage(1);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredDoctors.length / doctorsPerPage);
+  const startIndex = (currentPage - 1) * doctorsPerPage;
+  const endIndex = startIndex + doctorsPerPage;
+  const currentDoctors = filteredDoctors.slice(startIndex, endIndex);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top of table
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
+
+  const retryFetch = () => {
+    window.location.reload(); // Simple retry by reloading
   };
 
   if (isLoading) {
     return (
       <PatientLayout>
         <div className="flex items-center justify-center min-h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading doctors...</p>
+          </div>
+        </div>
+      </PatientLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PatientLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center max-w-md">
+            <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Unable to Load Doctors</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={retryFetch}
+              className="bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </PatientLayout>
     );
@@ -108,7 +220,7 @@ const PatientDoctors = () => {
       </div>
 
       {/* Search and Filter Section */}
-      <div className="bg-gray-50 rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-gradient-to-r from-[#F0FDFA] to-[#C3E9ED] rounded-lg shadow-sm p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search Bar */}
           <div className="md:col-span-2 relative">
@@ -120,6 +232,11 @@ const PatientDoctors = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"
             />
+            {isSearching && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600"></div>
+              </div>
+            )}
           </div>
 
           {/* Specialty Filter */}
@@ -138,10 +255,10 @@ const PatientDoctors = () => {
           </div>
         </div>
 
-        {/* Results Count */}
+        {/* Results Count and Pagination Info */}
         <div className="mt-4 flex items-center justify-between">
           <div className="text-sm font-medium text-gray-700">
-            Showing {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''}
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredDoctors.length)} of {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''}
             {searchTerm && ` for "${searchTerm}"`}
             {selectedSpecialty && ` in ${selectedSpecialty}`}
           </div>
@@ -181,7 +298,7 @@ const PatientDoctors = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredDoctors.map(doctor => (
+              {currentDoctors.map(doctor => (
                 <tr key={doctor.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -189,20 +306,22 @@ const PatientDoctors = () => {
                         <User size={20} className="text-brand-pri" />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{doctor.name}</div>
-                        <div className="text-sm text-gray-500">{doctor.email}</div>
+                        <div className="text-sm font-medium text-gray-900">{doctor.name || 'N/A'}</div>
+                        <div className="text-sm text-gray-500">{doctor.email || 'N/A'}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{doctor.field}</div>
+                    <div className="text-sm text-gray-900">{doctor.field || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{doctor.hospital}</div>
-                    <div className="text-sm text-gray-500">{doctor.location}</div>
+                    <div className="text-sm text-gray-900">{doctor.hospital || doctor.hospitalName || 'N/A'}</div>
+                    <div className="text-sm text-gray-500">{doctor.location || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{doctor.yearsOfExperience} years</div>
+                    <div className="text-sm text-gray-900">
+                      {doctor.yearsOfExperience ? `${doctor.yearsOfExperience} years` : 'N/A'}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
@@ -219,7 +338,7 @@ const PatientDoctors = () => {
         </div>
 
         {/* No Results */}
-        {filteredDoctors.length === 0 && (
+        {filteredDoctors.length === 0 && !isSearching && (
           <div className="text-center py-12">
             <User size={48} className="mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No doctors found</h3>
@@ -235,6 +354,104 @@ const PatientDoctors = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {filteredDoctors.length > doctorsPerPage && (
+        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4">
+          <div className="flex-1 flex justify-between sm:hidden">
+            {/* Mobile pagination */}
+            <button
+              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1}
+              className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
+                currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
+                currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+          
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                <span className="font-medium">{Math.min(endIndex, filteredDoctors.length)}</span> of{' '}
+                <span className="font-medium">{filteredDoctors.length}</span> results
+              </p>
+            </div>
+            <div>
+              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                {/* Previous button */}
+                <button
+                  onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+                  disabled={currentPage === 1}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${
+                    currentPage === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="sr-only">Previous</span>
+                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </button>
+
+                {/* Page numbers */}
+                {getPageNumbers().map((pageNumber, index) => (
+                  <span key={index}>
+                    {pageNumber === '...' ? (
+                      <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          pageNumber === currentPage
+                            ? 'z-10 bg-teal-50 border-teal-500 text-teal-600'
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    )}
+                  </span>
+                ))}
+
+                {/* Next button */}
+                <button
+                  onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${
+                    currentPage === totalPages
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="sr-only">Next</span>
+                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Doctor View Modal */}
       {showViewModal && selectedDoctor && (
@@ -259,8 +476,8 @@ const PatientDoctors = () => {
                   <User size={40} className="text-gray-600" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-semibold text-gray-900">{selectedDoctor.name}</h2>
-                  <p className="text-teal-600 font-medium text-lg">{selectedDoctor.field}</p>
+                  <h2 className="text-2xl font-semibold text-gray-900">{selectedDoctor.name || 'N/A'}</h2>
+                  <p className="text-teal-600 font-medium text-lg">{selectedDoctor.field || 'N/A'}</p>
                 </div>
               </div>
 
@@ -271,19 +488,22 @@ const PatientDoctors = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-20">Email:</span>
-                      <span className="text-gray-600">{selectedDoctor.email}</span>
+                      <span className="text-gray-600">{selectedDoctor.email || 'N/A'}</span>
                     </div>
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-20">Phone:</span>
-                      <span className="text-gray-600">{selectedDoctor.phone}</span>
+                      <span className="text-gray-600">{selectedDoctor.phone || 'N/A'}</span>
                     </div>
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-20">Gender:</span>
-                      <span className="text-gray-600">{selectedDoctor.gender}</span>
+                      <span className="text-gray-600">{selectedDoctor.gender || 'N/A'}</span>
                     </div>
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-20">Age:</span>
-                      <span className="text-gray-600">{calculateAge(selectedDoctor.DOB)} years</span>
+                      <span className="text-gray-600">
+                        {selectedDoctor.age || calculateAge(selectedDoctor.DOB) || 'N/A'} 
+                        {(selectedDoctor.age || calculateAge(selectedDoctor.DOB)) && ' years'}
+                      </span>
                     </div>
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-24">Consent:</span>
@@ -299,19 +519,21 @@ const PatientDoctors = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-24">Hospital:</span>
-                      <span className="text-gray-600">{selectedDoctor.hospital}</span>
+                      <span className="text-gray-600">{selectedDoctor.hospital || selectedDoctor.hospitalName || 'N/A'}</span>
                     </div>
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-24">Location:</span>
-                      <span className="text-gray-600">{selectedDoctor.location}</span>
+                      <span className="text-gray-600">{selectedDoctor.location || 'N/A'}</span>
                     </div>
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-24">Experience:</span>
-                      <span className="text-gray-600">{selectedDoctor.yearsOfExperience} years</span>
+                      <span className="text-gray-600">
+                        {selectedDoctor.yearsOfExperience ? `${selectedDoctor.yearsOfExperience} years` : 'N/A'}
+                      </span>
                     </div>
                     <div className="flex">
                       <span className="font-medium text-gray-700 w-24">Specialty:</span>
-                      <span className="text-gray-600">{selectedDoctor.field}</span>
+                      <span className="text-gray-600">{selectedDoctor.field || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
