@@ -1,4 +1,4 @@
-import {doctor, admin} from "../../index.js";
+import { doctor, admin } from "../../index.js";
 import "dotenv/config";
 
 const doctorUpdateProfile = async (req, res) => {
@@ -11,7 +11,7 @@ const doctorUpdateProfile = async (req, res) => {
     professional_description,
     field,
     years_of_experience,
-    phone
+    phone,
   } = req.body;
 
   try {
@@ -23,19 +23,28 @@ const doctorUpdateProfile = async (req, res) => {
     foundDoctor.location = location || foundDoctor.location;
     foundDoctor.DOB = date_of_birth || foundDoctor.DOB;
     foundDoctor.recordConsent = record_consent || foundDoctor.recordConsent;
-    foundDoctor.professionalDescription = professional_description || foundDoctor.professionalDescription;
+    foundDoctor.professionalDescription =
+      professional_description || foundDoctor.professionalDescription;
     foundDoctor.field = field || foundDoctor.field;
-    foundDoctor.yearsOfExperience = years_of_experience || foundDoctor.yearsOfExperience;
+    foundDoctor.yearsOfExperience =
+      years_of_experience || foundDoctor.yearsOfExperience;
     foundDoctor.phone = phone || foundDoctor.phone;
     foundDoctor.gender = gender || foundDoctor.gender;
     await foundDoctor.save();
 
     // calculate age from date_of_birth
-    const dob = new Date(foundDoctor.DOB);
-    const age = new Date().getFullYear() - dob.getFullYear();
+    const getAge = (dob) => {
+      if (!dob) return null;
+      const birthDate = new Date(dob);
+      const ageDiff = new Date().getFullYear() - birthDate.getFullYear();
+      return ageDiff;
+    };
+    const age = getAge(foundDoctor.DOB);
 
     // get hospital name from admin table
-    const hospital = await admin.findOne({ where: { id: foundDoctor.hospitalId } });
+    const hospital = await admin.findOne({
+      where: { id: foundDoctor.hospitalId },
+    });
     if (!hospital) {
       return res.status(404).json({ message: "Hospital not found" });
     }
@@ -54,7 +63,7 @@ const doctorUpdateProfile = async (req, res) => {
         professional_description: foundDoctor.professionalDescription,
         field: foundDoctor.field,
         years_of_experience: foundDoctor.yearsOfExperience,
-        hospitalName: hospital.name, 
+        hospitalName: hospital.name,
       },
     });
   } catch (error) {

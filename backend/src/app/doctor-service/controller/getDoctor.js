@@ -1,9 +1,15 @@
-import { doctor } from "../../index.js";
+import { doctor, admin } from "../../index.js";
 
 const getAllDoctors = async (req, res) => {
   try {
-    // Fetch all doctors from the database
     const doctors = await doctor.findAll({
+      include: [
+        {
+          model: admin,
+          as: "admin",
+          attributes: ["hospitalName"],
+        },
+      ],
       attributes: [
         "id",
         "name",
@@ -16,20 +22,32 @@ const getAllDoctors = async (req, res) => {
       ],
     });
 
-    // Check if any doctors were found
     if (doctors.length === 0) {
       return res.status(404).json({ message: "No doctors found" });
     }
 
-    // Return the list of doctors
+    // Flatten the structure
+    const flattenedDoctors = doctors.map((doc) => ({
+      id: doc.id,
+      name: doc.name,
+      email: doc.email,
+      location: doc.location,
+      DOB: doc.DOB,
+      professionalDescription: doc.professionalDescription,
+      field: doc.field,
+      yearsOfExperience: doc.yearsOfExperience,
+      hospitalName: doc.admin?.hospitalName || null, 
+    }));
+
     return res.status(200).json({
       message: "Doctors retrieved successfully",
-      doctors,
+      doctors: flattenedDoctors,
     });
   } catch (error) {
     return res.status(500).json({ message: "Error retrieving doctors", error });
   }
 };
+
 
 const getDoctorById = async (req, res) => {
   const { id } = req.params;

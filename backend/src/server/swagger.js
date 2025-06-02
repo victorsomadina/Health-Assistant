@@ -483,14 +483,26 @@ export default {
                     description:
                       "Name of the doctor involved in the conversation",
                   },
-                  audioFile: {
+                  audio: {
                     type: "string",
                     format: "binary",
                     description:
                       "Audio file to be transcribed (supported formats: mp3, wav, m4a, etc.)",
                   },
+                  purpose: {
+                    type: "string",
+                    example: "Follow-up consultation",
+                    description:
+                      "Purpose of the conversation (optional, can be null)",
+                  },
+                  notes: {
+                    type: "string",
+                    example: "Patient reported improvement in symptoms",
+                    description:
+                      "Additional notes or context for the conversation (optional, can be null)",
+                  },
                 },
-                required: ["doctorName", "audioFile"],
+                required: ["doctorName", "audio", "purpose", "notes"],
               },
             },
           },
@@ -521,16 +533,21 @@ export default {
                           example: 1,
                           description: "Patient ID",
                         },
-                        doctorId: {
-                          type: "integer",
-                          example: 1,
-                          description: "Doctor ID",
+                        doctorName: {
+                          type: "string",
+                          example: "Dr. John Smith",
+                          description: "Name of the doctor",
                         },
-                        transcription: {
+                        purpose: {
                           type: "string",
                           example:
-                            "Doctor: How are you feeling today? Patient: I've been experiencing some chest pain...",
-                          description: "Transcribed conversation text",
+                            "Follow-up consultation",
+                          description: "Purpose of the conversation",
+                        },
+                        notes: {
+                          type: "string",
+                          example: "Patient reported improvement in symptoms",
+                          description: "Additional notes for the conversation",
                         },
                         createdAt: {
                           type: "string",
@@ -1390,7 +1407,7 @@ export default {
         },
       },
     },
-    "/api/patient/doctors": {
+    "/api/patient/getdoctors": {
       get: {
         summary: "Get all doctors",
         tags: ["User"],
