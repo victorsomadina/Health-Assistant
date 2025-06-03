@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import OpenInNewIcon from '../../../assets/icons/open_in_new_icon.svg';
 import chatBubble from '/src/assets/icons/chat-bubble.svg';
 import chatMic from '/src/assets/icons/chat-mic.svg';
@@ -20,6 +21,7 @@ const ICONS = {
 };
 
 const ServiceCard = ({ service, emphasized }) => {
+  const navigate = useNavigate();
   if (service.type === 'doctor-image') {
     return null; // handled in parent
   }
@@ -77,11 +79,14 @@ const ServiceCard = ({ service, emphasized }) => {
             <img src={chatBubble} alt="Chat Bubble" className="w-8 h-8" />
             <img src={chatMic} alt="Chat Mic" className="w-8 h-8" />
           </div>
-          <button className={`mt-2 px-6 py-2 border rounded-full font-medium transition-all duration-300 ${
-            emphasized
-              ? 'border-white text-white bg-transparent hover:bg-white hover:text-[#026076]'
-              : 'border-[#20B2AA] text-[#20B2AA] bg-white hover:bg-[#e6f6f9] hover:border-white hover:text-white hover:bg-transparent'
-          }`}>
+          <button
+            className={`mt-2 px-6 py-2 border rounded-full font-medium transition-all duration-300 ${
+              emphasized
+                ? 'border-white text-white bg-transparent hover:bg-white hover:text-[#026076]'
+                : 'border-[#20B2AA] text-[#20B2AA] bg-white hover:bg-[#e6f6f9] hover:border-white hover:text-white hover:bg-transparent'
+            }`}
+            onClick={() => navigate('/login')}
+          >
             {service.buttonText}
           </button>
         </>
@@ -103,11 +108,14 @@ const ServiceCard = ({ service, emphasized }) => {
       
       {/* Button for Connect card */}
       {service.type === 'connect' && (
-        <button className={`mt-8 px-10 py-2 rounded-lg font-medium text-lg transition-all duration-300 ${
-          emphasized
-            ? 'bg-white text-[#026076] hover:bg-gray-100'
-            : 'bg-[#4CB7B3] text-white hover:bg-[#026076] hover:text-white'
-        }`}>
+        <button
+          className={`mt-8 px-10 py-2 rounded-lg font-medium text-lg transition-all duration-300 ${
+            emphasized
+              ? 'bg-white text-[#026076] hover:bg-gray-100'
+              : 'bg-[#4CB7B3] text-white hover:bg-[#026076] hover:text-white'
+          }`}
+          onClick={() => navigate('/login')}
+        >
           {service.buttonText}
         </button>
       )}
