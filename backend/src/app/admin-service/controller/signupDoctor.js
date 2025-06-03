@@ -79,7 +79,6 @@ const signupDoctor = async (req, res) => {
 
     try {
       await transporter.sendMail(mailOptions);
-      console.log("Welcome email sent successfully");
     } catch (emailError) {
       console.error("Error sending welcome email:", emailError);
     }

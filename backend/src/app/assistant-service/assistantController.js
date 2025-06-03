@@ -6,6 +6,12 @@ import "dotenv/config";
 const assistantController = async (req, res) => {
   const loggedInUserId = req.user.id;
   const loggedInUserRole = req.user.role;
+
+  // Validate user role early
+  if (!["patient", "doctor"].includes(loggedInUserRole)) {
+    return res.status(403).json({ message: "Unauthorized role" });
+  }
+
   const question = req.body.question;
   const converse = req.body.converse;
 
@@ -13,29 +19,49 @@ const assistantController = async (req, res) => {
   const otherPartyName =
     loggedInUserRole === "patient"
       ? req.body.doctorName
-      : loggedInUserRole === "doctor"
-      ? req.body.patientName
-      : null;
+      : req.body.patientName;
 
-  if ((!otherPartyName && !converse) || converse === false) {
+  // Case 1: No conversation — call Symptom API
+  if (!otherPartyName || converse === false) {
     try {
-      response = await fetch(process.env.SYMTPOM_API_URL, {
+      response = await fetch(process.env.SYMPTOM_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          query: query,
-        }),
+        body: JSON.stringify({ question }),
       });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        console.error("Symptom API error:", response.status, response.statusText);
+        return res.status(500).json({
+          message: "Symptom API call failed",
+          status: response.status,
+          details: responseText,
+        });
+      }
+
+      let airesponse;
+      try {
+        airesponse = JSON.parse(responseText);
+      } catch (err) {
+        console.error("Failed to parse Symptom API response:", err);
+        return res.status(500).json({
+          message: "Symptom API response is not valid JSON",
+          raw: responseText,
+        });
+      }
+
+      return res.status(200).json({ airesponse });
     } catch (error) {
       console.error("Error fetching symptoms:", error);
-      return res
-        .status(500)
-        .json({ message: "Error fetching symptoms", error });
+      return res.status(500).json({ message: "Error fetching symptoms", error });
     }
   }
 
+  // Case 2: Conversation exists — fetch transcript and call Assistant API
   try {
     let otherParty;
     if (loggedInUserRole === "patient") {
@@ -43,7 +69,7 @@ const assistantController = async (req, res) => {
         where: { name: otherPartyName },
         attributes: ["id", "name"],
       });
-    } else if (loggedInUserRole === "doctor") {
+    } else {
       otherParty = await patient.findOne({
         where: { name: otherPartyName },
         attributes: ["id", "name"],
@@ -52,37 +78,25 @@ const assistantController = async (req, res) => {
 
     if (!otherParty) {
       return res.status(404).json({
-        message: `The ${
-          loggedInUserRole === "patient" ? "doctor" : "patient"
-        } name provided isn't found.`,
+        message: `The ${loggedInUserRole === "patient" ? "doctor" : "patient"} name provided isn't found.`,
       });
     }
 
+    // Simplify conversation filter
+    const [patientId, doctorId] =
+      loggedInUserRole === "patient"
+        ? [loggedInUserId, otherParty.id]
+        : [otherParty.id, loggedInUserId];
+
     const conversation = await conversationRecord.findAll({
-      where: {
-        [Op.or]: [
-          {
-            patientId:
-              loggedInUserRole === "patient" ? loggedInUserId : otherParty.id,
-            doctorId:
-              loggedInUserRole === "doctor" ? loggedInUserId : otherParty.id,
-          },
-          {
-            patientId:
-              loggedInUserRole === "doctor" ? otherParty.id : loggedInUserId,
-            doctorId:
-              loggedInUserRole === "patient" ? otherParty.id : loggedInUserId,
-          },
-        ],
-      },
+      where: { patientId, doctorId },
     });
 
     if (conversation.length === 0) {
       return res.status(404).json({ message: "No transcript found" });
     }
-    // retrieve conversation details
-    const extractedtranscript = conversation.map((conv) => conv.conversation);
-    const mainextractedtranscript = extractedtranscript.join('')
+
+    const extractedtranscript = conversation.map((conv) => conv.conversation).join("");
 
     response = await fetch(process.env.ASSISTANT_API_URL, {
       method: "POST",
@@ -91,19 +105,16 @@ const assistantController = async (req, res) => {
       },
       body: JSON.stringify({
         name: otherParty.name,
-        question: question,
+        question,
         role: loggedInUserRole,
-        transcript: mainextractedtranscript,
+        transcript: extractedtranscript,
       }),
     });
+
     const responseText = await response.text();
 
     if (!response.ok) {
-      console.error(
-        "Assistant API error:",
-        response.status,
-        response.statusText
-      );
+      console.error("Assistant API error:", response.status, response.statusText);
       return res.status(500).json({
         message: "Assistant API call failed",
         status: response.status,
@@ -112,9 +123,7 @@ const assistantController = async (req, res) => {
     }
 
     if (!responseText) {
-      return res.status(500).json({
-        message: "Empty response from Assistant API",
-      });
+      return res.status(500).json({ message: "Empty response from Assistant API" });
     }
 
     let airesponse;
@@ -131,9 +140,7 @@ const assistantController = async (req, res) => {
     return res.status(200).json({ airesponse });
   } catch (error) {
     console.error("Error fetching transcript:", error);
-    return res
-      .status(500)
-      .json({ message: "Error fetching transcript", error });
+    return res.status(500).json({ message: "Error fetching transcript", error });
   }
 };
 

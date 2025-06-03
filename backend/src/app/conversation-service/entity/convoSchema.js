@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../../../database/databaseConnection.js";
 
-const conversationRecord = db.define("admin", {
+const conversationRecord = db.define("conversationRecord", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -10,7 +10,6 @@ const conversationRecord = db.define("admin", {
   doctorId: {
     type: DataTypes.UUID,
     allowNull: false,
-    unique: true,
     references: {
       model: "doctor",
       key: "id",
@@ -28,6 +27,14 @@ const conversationRecord = db.define("admin", {
     type: DataTypes.TEXT('long'),
     allowNull: false,
     unique: true,
+  },
+  purpose: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  notes: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true,
   },
   createdAt: {
     type: DataTypes.DATE,

@@ -1,3 +1,5 @@
+import { request } from "express";
+
 export default {
   openapi: "3.0.0",
   info: {
@@ -483,14 +485,26 @@ export default {
                     description:
                       "Name of the doctor involved in the conversation",
                   },
-                  audioFile: {
+                  audio: {
                     type: "string",
                     format: "binary",
                     description:
                       "Audio file to be transcribed (supported formats: mp3, wav, m4a, etc.)",
                   },
+                  purpose: {
+                    type: "string",
+                    example: "Follow-up consultation",
+                    description:
+                      "Purpose of the conversation (optional, can be null)",
+                  },
+                  notes: {
+                    type: "string",
+                    example: "Patient reported improvement in symptoms",
+                    description:
+                      "Additional notes or context for the conversation (optional, can be null)",
+                  },
                 },
-                required: ["doctorName", "audioFile"],
+                required: ["doctorName", "audio", "purpose", "notes"],
               },
             },
           },
@@ -521,16 +535,20 @@ export default {
                           example: 1,
                           description: "Patient ID",
                         },
-                        doctorId: {
-                          type: "integer",
-                          example: 1,
-                          description: "Doctor ID",
-                        },
-                        transcription: {
+                        doctorName: {
                           type: "string",
-                          example:
-                            "Doctor: How are you feeling today? Patient: I've been experiencing some chest pain...",
-                          description: "Transcribed conversation text",
+                          example: "Dr. John Smith",
+                          description: "Name of the doctor",
+                        },
+                        purpose: {
+                          type: "string",
+                          example: "Follow-up consultation",
+                          description: "Purpose of the conversation",
+                        },
+                        notes: {
+                          type: "string",
+                          example: "Patient reported improvement in symptoms",
+                          description: "Additional notes for the conversation",
                         },
                         createdAt: {
                           type: "string",
@@ -1390,7 +1408,7 @@ export default {
         },
       },
     },
-    "/api/patient/doctors": {
+    "/api/patient/getdoctors": {
       get: {
         summary: "Get all doctors",
         tags: ["User"],
@@ -2148,6 +2166,108 @@ export default {
                         name: "SequelizeDatabaseError",
                         message:
                           "Invalid table reference or DB connection issue",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/patient/getconversedoctors": {
+      post: {
+        summary: "Get doctors a patient has conversed with",
+        tags: ["User"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "This endpoint retrieves a list of unique doctors that a patient has had recorded conversations with, based on the patient's ID.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  patientId: {
+                    type: "integer",
+                    example: 1,
+                    description: "ID of the patient to retrieve conversed doctors for",
+                  },
+                },
+                required: ["patientId"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Conversed doctors retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Conversed doctors retrieved successfully",
+                    },
+                    doctors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                            example: "Dr. Jane Smith",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "No conversations found for this patient",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No conversations found for this patient",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error retrieving conversed doctors",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error retrieving conversed doctors",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error object",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeError",
+                        message: "Database connection failed",
                       },
                     },
                   },
