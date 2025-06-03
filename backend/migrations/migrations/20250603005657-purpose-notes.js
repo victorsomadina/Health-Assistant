@@ -1,19 +1,19 @@
 'use strict';
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up(queryInterface, Sequelize) {
     await queryInterface.addColumn('conversationRecord', 'purpose', {
       type: Sequelize.STRING,
-      allowNull: true
+      allowNull: true,
     });
 
     await queryInterface.addColumn('conversationRecord', 'notes', {
       type: Sequelize.TEXT('long'),
-      allowNull: true
+      allowNull: true,
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
+  async down(queryInterface, Sequelize) {
     await queryInterface.removeColumn('conversationRecord', 'purpose');
     await queryInterface.removeColumn('conversationRecord', 'notes');
   }
