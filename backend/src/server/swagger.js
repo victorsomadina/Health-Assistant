@@ -1,3 +1,5 @@
+import { request } from "express";
+
 export default {
   openapi: "3.0.0",
   info: {
@@ -540,8 +542,7 @@ export default {
                         },
                         purpose: {
                           type: "string",
-                          example:
-                            "Follow-up consultation",
+                          example: "Follow-up consultation",
                           description: "Purpose of the conversation",
                         },
                         notes: {
@@ -2165,6 +2166,108 @@ export default {
                         name: "SequelizeDatabaseError",
                         message:
                           "Invalid table reference or DB connection issue",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/patient/getconversedoctors": {
+      post: {
+        summary: "Get doctors a patient has conversed with",
+        tags: ["User"],
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+        description:
+          "This endpoint retrieves a list of unique doctors that a patient has had recorded conversations with, based on the patient's ID.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  patientId: {
+                    type: "integer",
+                    example: 1,
+                    description: "ID of the patient to retrieve conversed doctors for",
+                  },
+                },
+                required: ["patientId"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Conversed doctors retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Conversed doctors retrieved successfully",
+                    },
+                    doctors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                            example: "Dr. Jane Smith",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "No conversations found for this patient",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "No conversations found for this patient",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Error retrieving conversed doctors",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Error retrieving conversed doctors",
+                    },
+                    error: {
+                      type: "object",
+                      description: "Detailed error object",
+                      additionalProperties: true,
+                      example: {
+                        name: "SequelizeError",
+                        message: "Database connection failed",
                       },
                     },
                   },

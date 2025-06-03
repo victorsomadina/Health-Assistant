@@ -20,7 +20,9 @@ await syncSchema();
 await populateSuperAdmin();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  credentials: true,
+}));
 app.use('/api', loginRouter);
 app.use('/api/superadmin', superAdminRouter);
 app.use('/api/admin', adminRouter);

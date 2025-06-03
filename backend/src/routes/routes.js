@@ -28,6 +28,7 @@ import {
 } from '../app/assistant-service/agentController.js'
 import patientUpdateProfile from '../app/patient-service/controller/updateInformation.js';
 import viewPatients from '../app/doctor-service/controller/viewPatients.js';
+import getConversedDoctors from '../app/patient-service/controller/getconversedDoctors.js';
 
 
 // create a router for login
@@ -59,6 +60,7 @@ patientRouter.delete('/deletepatient/:id', authMiddleware, userMiddleware, patie
 patientRouter.post('/updateprofile/:id', authMiddleware, userMiddleware, patientUpdateProfile)
 patientRouter.post('/audiotranscribe/:id', authMiddleware, userMiddleware, upload.single('audio'), audiotranscribe);
 patientRouter.get('/getdoctors', authMiddleware, userMiddleware, getAllDoctors);
+patientRouter.post('/getconversedoctors', authMiddleware, userMiddleware, getConversedDoctors);
 
 // assistant routes
 const assistantRouter = express.Router();
