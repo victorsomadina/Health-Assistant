@@ -3,7 +3,10 @@ import transcribeAudio from "../../../utils/user/transcribeAudio.js";
 
 const audiotranscribe = async (req, res) => {
   const id = req.params.id;
-  const { doctorName } = req.body;
+  const notes = req.body.notes? req.body.notes : null;
+  const { doctorName,
+    purpose
+   } = req.body;
   const audioFile = req.file;
 
   if (!audioFile) {
@@ -15,11 +18,17 @@ const audiotranscribe = async (req, res) => {
       where: { name: doctorName },
       attributes: ["id", "name"],
     });
-
+    if (!doctorTable) {
+      return res.status(404).json({
+        message: "Doctor not found",
+      });
+    }
     const newConversation = await conversationRecord.create({
       patientId: id,
       doctorId: doctorTable.id,
       conversation: transcription,
+      purpose: purpose,
+      notes: notes,
     });
 
     return res.status(201).json({
@@ -27,8 +36,9 @@ const audiotranscribe = async (req, res) => {
       conversation: {
         id: newConversation.id,
         patientId: newConversation.patientId,
-        doctorId: newConversation.doctorId,
-        transcription: newConversation.transcription,
+        doctorName: doctorName,
+        purpose: newConversation.purpose,   
+        notes: newConversation.notes,      
         createdAt: newConversation.createdAt,
       },
     });

@@ -17,14 +17,12 @@ const loginController = async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: process.env.JWT_EXPIRATION }
         );
-        return res
-          .status(200)
-          .json({
-            token,
-            message: "Admin login successful",
-            adminData,
-            role: "admin",
-          });
+        return res.status(200).json({
+          token,
+          message: "Admin login successful",
+          adminData,
+          role: "admin",
+        });
       }
     }
 
@@ -45,12 +43,17 @@ const loginController = async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: process.env.JWT_EXPIRATION }
         );
+        const getAge = (dob) => {
+          if (!dob) return null;
+          const birthDate = new Date(dob);
+          const ageDiff = new Date().getFullYear() - birthDate.getFullYear();
+          return ageDiff;
+        };
         const doctorData = {
           id: doctorTable.id,
           name: doctorTable.name,
           email: doctorTable.email,
-          age:
-            new Date().getFullYear() - new Date(doctorTable.DOB).getFullYear(),
+          age: getAge(doctorTable.DOB),
           gender: doctorTable.gender,
           DOB: doctorTable.DOB,
           phone: doctorTable.phone,
@@ -62,7 +65,6 @@ const loginController = async (req, res) => {
           hospitalName: hospitalName,
           createdAt: doctorTable.createdAt,
           role: "doctor",
-
         };
         return res
           .status(200)
@@ -80,26 +82,31 @@ const loginController = async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: process.env.JWT_EXPIRATION }
         );
+        const getAge = (dob) => {
+          if (!dob) return null;
+          const birthDate = new Date(dob);
+          const ageDiff = new Date().getFullYear() - birthDate.getFullYear();
+          return ageDiff;
+        };
         const patientData = {
           id: patientTable.id,
           name: patientTable.name,
           email: patientTable.email,
-          age:
-            new Date().getFullYear() - new Date(patientTable.DOB).getFullYear(),
+          age: getAge(patientTable.DOB),
           DOB: patientTable.DOB,
+          location: patientTable.location,
+          gender: patientTable.gender,
           knownAllergies: patientTable.knownAllergies,
           chronicConditions: patientTable.chronicConditions,
           createdAt: patientTable.createdAt,
           phone: patientTable.phone,
           role: "patient",
         };
-        return res
-          .status(200)
-          .json({
-            token,
-            message: "Patient login successful",
-            patientData,
-          });
+        return res.status(200).json({
+          token,
+          message: "Patient login successful",
+          patientData,
+        });
       }
     }
 
@@ -113,14 +120,12 @@ const loginController = async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: process.env.JWT_EXPIRATION }
         );
-        return res
-          .status(200)
-          .json({
-            token,
-            message: "Super Admin login successful",
-            superAdminData,
-            role: "superadmin",
-          });
+        return res.status(200).json({
+          token,
+          message: "Super Admin login successful",
+          superAdminData,
+          role: "superadmin",
+        });
       }
     }
 

@@ -1,4 +1,4 @@
-// services/patientService.js
+
 import { api } from './api';
 import { mockPatients } from '../data/mockPatients';
 

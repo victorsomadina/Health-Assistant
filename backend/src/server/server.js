@@ -20,7 +20,9 @@ await syncSchema();
 await populateSuperAdmin();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  credentials: true,
+}));
 app.use('/api', loginRouter);
 app.use('/api/superadmin', superAdminRouter);
 app.use('/api/admin', adminRouter);
@@ -29,10 +31,9 @@ app.use('/api/patient', patientRouter);
 app.use('/api/assistant', assistantRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-export default app;
 
