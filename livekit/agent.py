@@ -14,8 +14,7 @@ from livekit.agents import (
     WorkerOptions,
     cli,
     metrics,
-    get_job_context,
-    mcp
+    get_job_context
 )
 from livekit.agents.voice import MetricsCollectedEvent, RunContext
 from livekit.plugins import deepgram, openai, silero
