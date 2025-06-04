@@ -6,4 +6,5 @@ langchain
 twilio
 uvicorn
 fastapi
+together
 
