@@ -31,7 +31,7 @@ const Sidebar = () => {
       patient: [
         { name: 'Dashboard', path: '/dashboard/patient', icon: Home },
         { name: 'Chat', path: '/chat', icon: MessageSquare },
-        { name: 'Record', path: '/records', icon: FileText }
+        { name: 'Recordings', path: '/records', icon: FileText }
       ],
       doctor: [
         { name: 'Dashboard', path: '/dashboard/doctor', icon: Home },

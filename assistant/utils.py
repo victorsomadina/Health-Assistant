@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 async def call_llama_api(messages: List[dict], transcript: str | List[str]) -> str:
-    url = "https://api.together.xyz/v1/chat/completions"
+    url = os.getenv('TOGETHER_API_URL')
     headers = {
         "Authorization": f"Bearer {os.getenv('TOGETHER_API_KEY')}",
         "Content-Type": "application/json"
