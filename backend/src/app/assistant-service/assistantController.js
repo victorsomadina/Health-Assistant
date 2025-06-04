@@ -32,6 +32,10 @@ const assistantController = async (req, res) => {
         body: JSON.stringify({ question }),
       });
 
+      if (response.ok) {
+        
+      }
+
       const responseText = await response.text();
 
       if (!response.ok) {
@@ -58,7 +62,7 @@ const assistantController = async (req, res) => {
     } catch (error) {
       return res.status(500).json({ message: "Error fetching symptoms", error });
     }
-  }
+  };
 
   // Case 2: Conversation exists — fetch transcript and call Assistant API
   try {

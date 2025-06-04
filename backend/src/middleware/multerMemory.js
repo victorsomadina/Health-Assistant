@@ -12,7 +12,8 @@ const fileFilter = (req, file, cb) => {
     'audio/mp4',
     'audio/x-m4a',
     'audio/aac',
-    'audio/ogg'
+    'audio/ogg',
+    'application/octet-stream'
   ];
 
   if (allowedMimes.includes(file.mimetype)) {

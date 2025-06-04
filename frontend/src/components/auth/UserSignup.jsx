@@ -139,7 +139,7 @@ export default function SignupPage() {
         <div className="w-full lg:w-[50%] lg:min-w-[50%] lg:max-w-[50%] bg-[#EBF4F5] flex flex-col justify-center items-center p-6 sm:p-8 lg:p-16">
           <div className="max-w-md text-center w-full">
             {/* Logo */}
-            <div className="mb-6 lg:mb-8 flex justify-center">
+            <div className="mb-6 lg:mb-8 flex justify-center cursor-pointer" onClick={() => navigate('/') }>
               <img src={brand_logo} alt="WeHelp Logo" className="w-32 sm:w-40 lg:w-48" />
             </div>
 
@@ -168,7 +168,7 @@ export default function SignupPage() {
                 Smart Health Journey
               </h1>
               <p className="text-teal-200 text-sm">
-                Smart health support starts here
+                Your intelligent health support starts here
               </p>
             </div>
 
