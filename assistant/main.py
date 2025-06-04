@@ -4,7 +4,9 @@ from typing import List, Union
 from utils import call_llama_api
 
 app = FastAPI()
-
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "API is up and running"}
 # A dict to keep conversation history keyed by user (or session ID)
 conversation_memory = {}
 
@@ -16,9 +18,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     airesponse: str
-@app.get("/")
-def read_root():
-    return {"status": "ok", "message": "API is up and running"}
+
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
     user_key = request.name
