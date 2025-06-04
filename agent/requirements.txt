@@ -5,3 +5,5 @@ FLASK-CORS
 langchain
 twilio
 uvicorn
+fastapi
+
