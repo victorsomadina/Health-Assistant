@@ -7,4 +7,5 @@ twilio
 uvicorn
 fastapi
 together
+langchain_together
 
