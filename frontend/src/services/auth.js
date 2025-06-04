@@ -105,7 +105,7 @@ class AuthService {
   logout() {
     console.log('🚪 Logging out user...');
     storage.clearAuth();
-    window.location.href = '/login';
+    window.location.href = '/';
   }
 
   // Get current user from storage
