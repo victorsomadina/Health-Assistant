@@ -35,7 +35,7 @@ const assistantController = async (req, res) => {
       const responseText = await response.text();
 
       if (!response.ok) {
-        console.error("Symptom API error:", response.status, response.statusText);
+        console.error("Symptom API error:", response.status, error);
         return res.status(500).json({
           message: "Symptom API call failed",
           status: response.status,
@@ -56,7 +56,6 @@ const assistantController = async (req, res) => {
 
       return res.status(200).json({ airesponse });
     } catch (error) {
-      console.error("Error fetching symptoms:", error);
       return res.status(500).json({ message: "Error fetching symptoms", error });
     }
   }

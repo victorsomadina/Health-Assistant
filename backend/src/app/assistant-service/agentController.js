@@ -52,7 +52,7 @@ const getDoctorByHospital = async (req, res) => {
 
     return res.status(200).json({
       hospitalId: hospital.id,
-      [hospital.hospitalName]: doctors, // dynamic key using hospital name
+      [hospital.hospitalName]: doctors, 
     });
   } catch (error) {
     return res.status(500).json({
