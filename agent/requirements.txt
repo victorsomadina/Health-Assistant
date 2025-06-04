@@ -4,3 +4,4 @@ python-dotenv
 FLASK-CORS
 langchain
 twilio
+uvicorn
