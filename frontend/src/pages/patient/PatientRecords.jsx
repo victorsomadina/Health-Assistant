@@ -5,7 +5,10 @@ import { conversations, conversationTypes } from '../../data/patientRecordsData'
 import recording_mic from '../../assets/images/recording_mic.png';
 import { useAuth } from '../../context/AuthContext';
 import { doctorService } from '../../services/doctorService';
+import { api } from '../../services/api';
 import Select from 'react-select';
+import { storage } from '../../services/storage';
+import RecordingSuccessModal from '../../components/modals/RecordingSuccessModal'; // ADD THIS IMPORT
 
 const PatientRecords = () => {
   const { user } = useAuth();
@@ -35,6 +38,10 @@ const PatientRecords = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [microphonePermission, setMicrophonePermission] = useState('prompt');
+
+  // SUCCESS MODAL STATE - ADD THESE LINES
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successRecordingData, setSuccessRecordingData] = useState({});
 
   // Purpose options for React Select
   const purposeOptions = [
@@ -302,6 +309,7 @@ const PatientRecords = () => {
     }
   };
 
+  // UPDATED handleSaveRecording function with success modal
   const handleSaveRecording = async () => {
     if (!audioBlob) {
       setUploadError('No recording found. Please record audio first.');
@@ -330,73 +338,91 @@ const PatientRecords = () => {
       formData.append('audio', audioBlob, `recording.${extension}`);
       formData.append('purpose', selectedPurpose);
       formData.append('doctorName', getDoctorName(selectedDoctor));
-      formData.append('notes', recordedNotes);
+      formData.append('notes', recordedNotes || '');
 
-      const uploadWithRetry = async (retries = 3) => {
-        for (let i = 0; i < retries; i++) {
-          try {
-            const baseUrl = import.meta.env.VITE_BASE_URL || '';
-            const endpointPath = import.meta.env.VITE_AUDIO_TRANSCRIBE_ENDPOINT || '/patient/audiotranscribe/{id}';
-            const patientId = user?.id || user?.patientId || user?.userId;
-            
-            if (!patientId) {
-              throw new Error('Patient ID not found. Please login again.');
-            }
-            
-            const finalPath = endpointPath.replace('{id}', patientId);
-            const endpoint = `${baseUrl}${finalPath}`;
-            
-            const response = await fetch(endpoint, {
-              method: 'POST',
-              body: formData,
-              headers: {
-                'Accept': 'application/json',
-              },
-              mode: 'cors',
-              credentials: 'include'
-            });
+      const patientId = user?.id || user?.patientId || user?.userId;
+      if (!patientId) {
+        throw new Error('Patient ID not found. Please login again.');
+      }
 
-            if (!response.ok) {
-              const errorText = await response.text();
-              throw new Error(`Upload failed: ${response.status} ${response.statusText} - ${errorText}`);
-            }
+      const endpoint = `/patient/audiotranscribe/${patientId}`;
+      
+      console.log('🚀 Uploading via API service to:', endpoint);
+      console.log('📦 FormData contents:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value instanceof File ? `File: ${value.name}` : value);
+      }
 
-            const result = await response.json();
-            
-            handleCloseRecording();
-            setSelectedConversation(null);
-            return result;
+      // Direct fetch call for FormData upload
+      const response = await fetch(`${api.baseURL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${storage.getToken()}`
+        },
+        body: formData
+      });
 
-          } catch (error) {
-            if (i === retries - 1) {
-              throw error;
-            }
-            
-            const waitTime = Math.pow(2, i) * 1000;
-            await new Promise(resolve => setTimeout(resolve, waitTime));
-          }
-        }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Upload successful:', data);
+      
+      // PREPARE SUCCESS MODAL DATA - ADD THESE LINES
+      const successData = {
+        purpose: selectedPurpose,
+        doctorName: getDoctorName(selectedDoctor),
+        duration: formatTime(recordingTime),
+        timestamp: new Date().toLocaleString(),
+        notes: recordedNotes
       };
-
-      await uploadWithRetry();
+      
+      setSuccessRecordingData(successData);
+      
+      // Clean up recording state first
+      handleCloseRecording();
+      setSelectedConversation(null);
+      
+      // SHOW SUCCESS MODAL - ADD THIS LINE
+      setShowSuccessModal(true);
 
     } catch (error) {
+      console.error('❌ Upload failed:', error);
       let errorMessage = 'Failed to save recording. ';
       
-      if (error.message.includes('Failed to fetch')) {
+      if (error.message.includes('Authentication') || error.message.includes('401') || error.message.includes('Unauthorized')) {
+        errorMessage = 'Please login again to continue.';
+      } else if (error.message.includes('Network error') || error.message.includes('Failed to fetch')) {
         errorMessage += 'Please check your internet connection and try again.';
       } else if (error.message.includes('413')) {
         errorMessage += 'File is too large for upload.';
       } else if (error.message.includes('500')) {
         errorMessage += 'Server error. Please try again later.';
       } else {
-        errorMessage += 'Please try again.';
+        errorMessage += error.message || 'Please try again.';
       }
       
       setUploadError(errorMessage);
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // SUCCESS MODAL HANDLERS - ADD THESE FUNCTIONS
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessRecordingData({});
+  };
+
+  const handleViewRecords = () => {
+    // Navigate to records section or refresh conversation list
+    setSelectedConversation(null);
+    if (isMobile) {
+      setShowSidebar(true);
+    }
+    // You could also trigger a refresh of the conversations list here if needed
   };
 
   // Enhanced Select styles for mobile
@@ -617,7 +643,7 @@ const PatientRecords = () => {
                         </div>
                       </div>
                       
-                      <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full max-w-md">
+                      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full max-w-md">
                         {!isRecording ? (
                           <>
                             <button
@@ -687,10 +713,10 @@ const PatientRecords = () => {
                       
                       {isUploading && (
                         <div className="w-full max-w-md mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <p className="text-sm text-blue-600 flex items-center gap-2">
+                          <div className="text-sm text-blue-600 flex items-center gap-2">
                             <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                             Uploading recording to server...
-                          </p>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -849,6 +875,14 @@ const PatientRecords = () => {
             </div>
           </div>
         </div>
+
+        {/* SUCCESS MODAL - ADD THIS COMPONENT */}
+        <RecordingSuccessModal
+          isOpen={showSuccessModal}
+          onClose={handleCloseSuccessModal}
+          recordingData={successRecordingData}
+          onViewRecords={handleViewRecords}
+        />
       </div>
     </PatientLayout>
   );

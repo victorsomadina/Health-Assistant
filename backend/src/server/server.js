@@ -21,7 +21,10 @@ await populateSuperAdmin();
 
 app.use(express.json());
 app.use(cors({
+  origin: ['http://localhost:5173', 'https://wc2sdbj8-3000.uks1.devtunnels.ms'],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 app.use('/api', loginRouter);
 app.use('/api/superadmin', superAdminRouter);
