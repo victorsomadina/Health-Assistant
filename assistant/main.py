@@ -16,7 +16,9 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     airesponse: str
-
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "API is up and running"}
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
     user_key = request.name
