@@ -1,8 +1,8 @@
 import json
 import logging
 from langchain_together import Together
-from services.tools import get_doctors_by_hospital_and_symptoms, _get_all_hospitals_raw
-from config import TOGETHER_API_KEY
+from ..services.tools import get_doctors_by_hospital_and_symptoms, _get_all_hospitals_raw
+from app.config import TOGETHER_API_KEY
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 

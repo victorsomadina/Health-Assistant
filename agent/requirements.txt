@@ -4,3 +4,8 @@ python-dotenv
 FLASK-CORS
 langchain
 twilio
+uvicorn
+fastapi
+together
+langchain_together
+

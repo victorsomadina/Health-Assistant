@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 import logo from '../../../assets/images/wehelp_logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Determine dashboard path for authenticated users
+  let dashboardPath = '/';
+if (user?.role) {
+  if (user.role === 'patient') dashboardPath = '/patient/dashboard';
+  else if (user.role === 'doctor') dashboardPath = '/doctor/dashboard';
+  else if (user.role === 'admin') dashboardPath = '/admin/dashboard';
+}
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -16,7 +26,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate('/') }>
               <img 
                 src={logo}
                 alt="WeHelp Logo" 
@@ -27,55 +37,66 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:block">
-            <ul className="flex space-x-8">
-              <li>
-                <a 
-                  href="#home" 
-                  className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
-                >
-                  Home
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#about" 
-                  className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
-                >
-                  About
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#services" 
-                  className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
-                >
-                  Services
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#contact" 
-                  className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
-                >
-                  Contact
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              </li>
-            </ul>
+            {!user ? (
+              <ul className="flex space-x-8">
+                <li>
+                  <a 
+                    href="#home" 
+                    className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
+                  >
+                    Home
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#about" 
+                    className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
+                  >
+                    About
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#services" 
+                    className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
+                  >
+                    Services
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#contact" 
+                    className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 relative group"
+                  >
+                    Contact
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all duration-300 group-hover:w-full"></span>
+                  </a>
+                </li>
+              </ul>
+            ) : (
+              <button
+                className="text-gray-700 hover:text-teal-500 font-medium transition-colors duration-300 px-4 py-2 rounded-md bg-white/80 hover:bg-teal-50 border border-teal-100"
+                onClick={() => navigate(dashboardPath)}
+              >
+                Back to Dashboard
+              </button>
+            )}
           </nav>
 
           {/* Auth Buttons - Desktop */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button className="btn-secondary text-sm px-5 py-2" onClick={() => navigate('/login')}>
-              Login
-            </button>
-            <button className="btn-primary text-sm px-5 py-2" onClick={() => navigate('/signup')}>
-              Sign up
-            </button>
-          </div>
+          {!user && (
+            <div className="hidden md:flex items-center space-x-4">
+              <button className="btn-secondary text-sm px-5 py-2" onClick={() => navigate('/login')}>
+                Login
+              </button>
+              <button className="btn-primary text-sm px-5 py-2" onClick={() => navigate('/signup')}>
+                Sign up
+              </button>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button 
@@ -123,14 +144,16 @@ const Header = () => {
                 Contact
               </a>
             </div>
-            <div className="px-5 py-4 border-t border-teal-100 space-y-3">
-              <button className="btn-secondary w-full justify-center text-sm" onClick={() => navigate('/login')}>
-                Login
-              </button>
-              <button className="btn-primary w-full justify-center text-sm" onClick={() => navigate('/signup')}>
-                Sign up
-              </button>
-            </div>
+            {!user && (
+              <div className="px-5 py-4 border-t border-teal-100 space-y-3">
+                <button className="btn-secondary w-full justify-center text-sm" onClick={() => navigate('/login')}>
+                  Login
+                </button>
+                <button className="btn-primary w-full justify-center text-sm" onClick={() => navigate('/signup')}>
+                  Sign up
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

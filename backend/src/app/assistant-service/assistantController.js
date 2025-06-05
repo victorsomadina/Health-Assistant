@@ -31,6 +31,10 @@ const assistantController = async (req, res) => {
         }
       );
 
+      if (response.ok) {
+        
+      }
+
       const responseText = await response.text();
 
       if (!response.ok) {
@@ -63,7 +67,7 @@ const assistantController = async (req, res) => {
         stack: error.stack,
       });
     }
-  }
+  };
 
   // Case 2: Conversation exists — fetch transcript and call Assistant API
   try {

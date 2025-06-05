@@ -1,6 +1,6 @@
 import React from 'react';
 import ServicesSection from '../ServicesSection/ServicesSection';
-import doctorHero from '../../../assets/images/doctor-hero.svg';
+import doctorHero from '../../../assets/images/doctor-hero-2.svg';
 
 const HeroSection = () => {
   return (

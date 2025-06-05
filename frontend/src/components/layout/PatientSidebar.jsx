@@ -1,13 +1,11 @@
 // components/layout/PatientSidebar.jsx
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useSidebar } from '../../context/SidebarContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, MessageSquare, Settings, Bell, HelpCircle, Users, AudioLines } from 'lucide-react';
 import wehelp_logo from '../../assets/images/wehelp_logo.png';
 
 const PatientSidebar = () => {
-  const { user } = useAuth();
   const { isOpen, closeSidebar, isMobile } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,7 +15,7 @@ const PatientSidebar = () => {
     { name: 'Dashboard', path: '/patient/dashboard', icon: Home },
     { name: 'Chat', path: '/patient/chat', icon: MessageSquare },
     { name: 'View Doctors', path: '/patient/doctors', icon: Users },
-    { name: 'Records', path: '/patient/records', icon: AudioLines }
+    { name: 'Recordings', path: '/patient/records', icon: AudioLines }
   ];
 
   // Common items for patients
@@ -55,7 +53,7 @@ const PatientSidebar = () => {
         ${isMobile ? 'z-30' : 'z-20'}
       `}>
         {/* Logo Section */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 cursor-pointer" onClick={() => navigate('/') }>
           <img src={wehelp_logo} alt="WeHelp Logo" className="w-full h-8 object-contain" />
         </div>
 
