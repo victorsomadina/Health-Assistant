@@ -2,7 +2,7 @@ from together import Together
 from langchain.prompts import PromptTemplate
 from .base_agent import BaseAgent
 from .prompts import FIRST_AID_PROMPT
-from app.config import TOGETHER_API_KEY
+from config import TOGETHER_API_KEY
 
 
 class FirstAidAgent(BaseAgent):

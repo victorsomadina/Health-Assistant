@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from fastapi import FastAPI, HTTPException
 from flask_cors import CORS
-from .agents.coordinator_agent import CoordinatorAgent
+from agents.coordinator_agent import CoordinatorAgent
 from fastapi import Request
 
 app = FastAPI()

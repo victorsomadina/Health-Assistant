@@ -4,7 +4,7 @@ from .first_aid_agent import FirstAidAgent
 from .doctor_matching_agent import DoctorMatchingAgent
 from .doctor_notification_agent import DoctorNotificationAgent
 from together import Together
-from app.config import TOGETHER_API_KEY
+from config import TOGETHER_API_KEY
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 

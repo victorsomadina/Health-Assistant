@@ -13,7 +13,7 @@ export const useConnectionManager = () => {
       setConnectionError(null);
       
       // Fetch the token from the backend service
-      const response = await fetch('http://localhost:8000/api/livekit-token');
+      const response = await fetch('http://localhost:8080/api/livekit-token');
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

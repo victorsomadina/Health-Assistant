@@ -2,7 +2,7 @@ import requests
 import json
 import logging
 from langchain.tools import tool
-from app.config import DOCTOR_DB_API_URL, HOSPITAL_DB_API_URL
+from config import DOCTOR_DB_API_URL, HOSPITAL_DB_API_URL
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

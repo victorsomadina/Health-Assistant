@@ -2,11 +2,7 @@ from together import Together
 from langchain.agents import Tool
 from .base_agent import BaseAgent
 from .prompts import DOCTOR_NOTIFICATION_PROMPT
-<<<<<<< HEAD
 from config import TOGETHER_API_KEY
-=======
-from app.config import TOGETHER_API_KEY
->>>>>>> 361240bc341a3b40ddc01fcf3e78c32c5e4bcfb6
 
 
 class DoctorNotificationAgent(BaseAgent):
