@@ -93,11 +93,12 @@ def get_doctors_by_hospital_and_symptoms(input_str: str) -> str:
                 api_url = api_url + '/getdoctorbyhospital'
         
         # Make the API request
-        response = requests.get(
-            api_url,
-            params={"hospital": hospital, "symptoms": symptoms},
-            timeout=10
-        )
+        response = requests.post(
+                api_url,
+                json={"hospitalName": hospital},
+                timeout=10
+           )
+
         
         logging.info(f"API Request URL: {response.url}")
         logging.info(f"API Response Status: {response.status_code}")

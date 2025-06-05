@@ -1,5 +1,4 @@
 import { doctor, patient, conversationRecord } from "../index.js";
-import { Op } from "sequelize";
 import fetch from "node-fetch";
 import "dotenv/config";
 
@@ -15,27 +14,27 @@ const assistantController = async (req, res) => {
   const question = req.body.question;
   const converse = req.body.converse;
 
-  let response;
   const otherPartyName =
-    loggedInUserRole === "patient"
-      ? req.body.doctorName
-      : req.body.patientName;
+    loggedInUserRole === "patient" ? req.body.doctorName : req.body.patientName;
 
   // Case 1: No conversation — call Symptom API
   if (!otherPartyName || converse === false) {
     try {
-      response = await fetch(process.env.SYMPTOM_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ question }),
-      });
+      const response = await fetch(
+        "https://wc2sdbj8-8000.uks1.devtunnels.ms/interact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ question }),
+        }
+      );
 
       const responseText = await response.text();
 
       if (!response.ok) {
-        console.error("Symptom API error:", response.status, error);
+        console.error("Symptom API returned non-OK status:", response.status, responseText);
         return res.status(500).json({
           message: "Symptom API call failed",
           status: response.status,
@@ -55,8 +54,14 @@ const assistantController = async (req, res) => {
       }
 
       return res.status(200).json({ airesponse });
+
     } catch (error) {
-      return res.status(500).json({ message: "Error fetching symptoms", error });
+      console.error("Error calling Symptom API:", error);
+      return res.status(500).json({
+        message: "Error fetching symptoms",
+        error: error.message || error.toString(),
+        stack: error.stack,
+      });
     }
   }
 
@@ -81,7 +86,6 @@ const assistantController = async (req, res) => {
       });
     }
 
-    // Simplify conversation filter
     const [patientId, doctorId] =
       loggedInUserRole === "patient"
         ? [loggedInUserId, otherParty.id]
@@ -95,9 +99,11 @@ const assistantController = async (req, res) => {
       return res.status(404).json({ message: "No transcript found" });
     }
 
-    const extractedtranscript = conversation.map((conv) => conv.conversation).join("");
+    const extractedtranscript = conversation
+      .map((conv) => conv.conversation)
+      .join("");
 
-    response = await fetch(process.env.ASSISTANT_API_URL, {
+    const response = await fetch('https://wc2sdbj8-5000.uks1.devtunnels.ms/chat', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +119,7 @@ const assistantController = async (req, res) => {
     const responseText = await response.text();
 
     if (!response.ok) {
-      console.error("Assistant API error:", response.status, response.statusText);
+      console.error("Assistant API error:", response.status, responseText);
       return res.status(500).json({
         message: "Assistant API call failed",
         status: response.status,
@@ -137,9 +143,14 @@ const assistantController = async (req, res) => {
     }
 
     return res.status(200).json({ airesponse });
+
   } catch (error) {
-    console.error("Error fetching transcript:", error);
-    return res.status(500).json({ message: "Error fetching transcript", error });
+    console.error("Error fetching transcript or calling Assistant API:", error);
+    return res.status(500).json({
+      message: "Error processing assistant conversation",
+      error: error.message || error.toString(),
+      stack: error.stack,
+    });
   }
 };
 

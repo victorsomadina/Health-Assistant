@@ -123,7 +123,7 @@ Your task is to:
    - A brief introduction of the user (e.g., "My name is {user_name}/A patient referred by MediCare Assist").
    - The reason for contact (related to the symptoms).
    - A request to know the doctor's availability or how to book an appointment.
-   - Example: "Hello Dr. {doctor_name}, my name is {user_name} (or a patient referred by MediCare Assist). I was hoping to consult with you regarding [briefly mention symptoms, e.g., 'persistent headaches']. Could you please let me know your availability or the best way to schedule an appointment? Thank you."
-3. Present this message to the user and suggest they can copy and send it.
-4. I will also provide a WhatsApp link you can click to contact the doctor directly using the message.
+   - Example: Hello Dr. <<DOCTOR_NAME>>{doctor_name}<</DOCTOR_NAME>>, my name is {user_name} (or a patient referred by MediCare Assist). I was hoping to consult with you regarding [briefly mention symptoms, e.g., 'persistent headaches']. Could you please let me know your availability or the best way to schedule an appointment? Thank you.
+   - Send this message as a response to the user via the API
+3. Send this a message as a list and not a json as a response to the user via the API.
 """

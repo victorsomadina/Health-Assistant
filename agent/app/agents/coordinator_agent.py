@@ -252,13 +252,14 @@ OR
                 doctor = doctors[0]
                 try:
                     notification_result = self.doctor_notification_agent.notify_doctor(doctor)
-                    response = f"Doctor {doctor.get('name', 'N/A')} ({doctor.get('specialty', 'N/A')}) has been notified. {notification_result}"
+                    response = notification_result.get("message", {})
+                    response_text = f"Doctor {response.get('doctorName', 'N/A')} ({doctor.get('specialty', 'N/A')}) has been notified. {response.get('message', '')}"
                 except Exception as e:
                     logging.error(f"Error notifying doctor: {e}")
-                    response = "There was a problem contacting the doctor. Please try again later."
+                    response_text = "There was a problem contacting the doctor. Please try again later."
                 
-                self.session_histories[session_id].append({"role": "assistant", "content": response})
-                return response
+                self.session_histories[session_id].append({"role": "assistant", "content": response_text})
+                return response_text
 
             self.awaiting_doctor_selection[session_id] = doctors
 
@@ -299,12 +300,13 @@ OR
             self.awaiting_doctor_selection[session_id] = []
             try:
                 notification_result = self.doctor_notification_agent.notify_doctor(selected_doctor)
-                response = f"Doctor {selected_doctor.get('name', 'N/A')} ({selected_doctor.get('specialty', 'N/A')}) has been notified. {notification_result}"
+                response = notification_result.get("message", {})
+                response_text = f"Doctor {response.get('doctorName', 'N/A')} ({selected_doctor.get('specialty', 'N/A')}) has been notified. {response.get('message', '')}"
             except Exception as e:
                 logging.error(f"Error notifying doctor: {e}")
-                response = "There was a problem contacting the doctor. Please try again later."
-            self.session_histories[session_id].append({"role": "assistant", "content": response})
-            return response
+                response_text = "There was a problem contacting the doctor. Please try again later."
+            self.session_histories[session_id].append({"role": "assistant", "content": response_text})
+            return response_text
         else:
             doctors_list = [f"{i+1}. {doc.get('name', 'Doctor')} - {doc.get('specialty', 'Specialty not listed')}" for i, doc in enumerate(doctors)]
             response = "Sorry, I couldn't match that selection. Please choose from these doctors:\n\n" + "\n".join(doctors_list)
